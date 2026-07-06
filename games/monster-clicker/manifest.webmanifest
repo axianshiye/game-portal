@@ -1,0 +1,25 @@
+{
+  "name": "副本刷装录",
+  "short_name": "刷装录",
+  "description": "点击怪物、刷副本、收集装备和宠物的网页挂机刷装游戏。",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#10131b",
+  "theme_color": "#10131b",
+  "icons": [
+    {
+      "src": "./assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

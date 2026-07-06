@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="screen-orientation" content="portrait" />
+    <meta name="x5-orientation" content="portrait" />
+    <title>甜甜三消</title>
+    <link rel="stylesheet" href="styles.css?v=portrait-lock-1" />
+  </head>
+  <body>
+    <main class="game-shell" aria-label="甜甜三消游戏">
+      <section class="top-panel">
+        <div class="stats" aria-label="游戏状态">
+          <div>
+            <span>关卡</span>
+            <strong id="level">1</strong>
+          </div>
+          <div>
+            <span>分数</span>
+            <strong id="score">0</strong>
+          </div>
+          <div>
+            <span>步数</span>
+            <strong id="moves">30</strong>
+          </div>
+          <div>
+            <span>连击</span>
+            <strong id="combo">x1</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="play-area">
+        <div class="board-wrap">
+          <div id="board" class="board" aria-label="三消棋盘"></div>
+          <div id="toast" class="toast" role="status" aria-live="polite"></div>
+        </div>
+
+        <aside class="side-panel">
+          <div class="target-card">
+            <div class="target-head">
+              <span>关卡目标</span>
+              <strong id="targetScore">3000</strong>
+            </div>
+            <div class="progress-track" aria-label="目标进度">
+              <div id="progressFill" class="progress-fill"></div>
+            </div>
+            <div id="orders" class="orders" aria-label="收集目标"></div>
+          </div>
+          <div class="controls">
+            <button id="hintBtn" type="button">提示</button>
+            <button id="shuffleBtn" type="button">洗牌</button>
+            <button id="restartBtn" type="button">重开</button>
+            <button id="soundBtn" class="sound-btn" type="button" aria-pressed="true">
+              <span id="soundIcon">声音开</span>
+            </button>
+          </div>
+          <div class="boosters" aria-label="道具">
+            <button id="hammerBtn" class="booster" type="button">
+              <img src="assets/boosters/hammer.png" alt="" />
+              <span>糖锤</span>
+              <strong id="hammerCount">2</strong>
+            </button>
+            <button id="sparkBtn" class="booster" type="button">
+              <img src="assets/boosters/spark.png" alt="" />
+              <span>星爆</span>
+              <strong id="sparkCount">1</strong>
+            </button>
+            <button id="rowBlastBtn" class="booster" type="button">
+              <img src="assets/boosters/row-blast.png" alt="" />
+              <span>横扫</span>
+              <strong id="rowBlastCount">1</strong>
+            </button>
+            <button id="colBlastBtn" class="booster" type="button">
+              <img src="assets/boosters/col-blast.png" alt="" />
+              <span>竖扫</span>
+              <strong id="colBlastCount">1</strong>
+            </button>
+            <button id="crossBlastBtn" class="booster" type="button">
+              <img src="assets/boosters/cross-blast.png" alt="" />
+              <span>十字</span>
+              <strong id="crossBlastCount">1</strong>
+            </button>
+            <button id="addMovesBtn" class="booster" type="button">
+              <img src="assets/boosters/add-moves.png" alt="" />
+              <span>加步</span>
+              <strong id="addMovesCount">1</strong>
+            </button>
+          </div>
+        </aside>
+      </section>
+      <div id="modal" class="modal" hidden>
+        <div class="modal-card">
+          <span id="modalKicker">关卡完成</span>
+          <strong id="modalTitle">太甜啦！</strong>
+          <p id="modalText">继续下一关，挑战更高分。</p>
+          <button id="nextBtn" type="button">下一关</button>
+        </div>
+      </div>
+      <div id="comboBanner" class="combo-banner" hidden></div>
+    </main>
+    <div id="orientationLock" class="orientation-lock" aria-hidden="true">
+      <div>
+        <strong>请竖屏游玩</strong>
+        <span>旋转手机后继续甜甜三消</span>
+      </div>
+    </div>
+
+    <script src="game.js?v=portrait-lock-1"></script>
+  </body>
+</html>

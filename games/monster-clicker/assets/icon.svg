@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="副本刷装录">
+  <defs>
+    <linearGradient id="bg" x1="80" x2="432" y1="54" y2="458" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#efbd55" />
+      <stop offset=".42" stop-color="#ee6852" />
+      <stop offset="1" stop-color="#58d0c7" />
+    </linearGradient>
+    <linearGradient id="blade" x1="164" x2="360" y1="128" y2="332" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fff2c2" />
+      <stop offset=".5" stop-color="#d9e0ff" />
+      <stop offset="1" stop-color="#78d9d1" />
+    </linearGradient>
+    <filter id="shadow" x="-25%" y="-25%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#071019" flood-opacity=".45" />
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="#10131b" />
+  <rect x="36" y="36" width="440" height="440" rx="84" fill="url(#bg)" opacity=".92" />
+  <circle cx="168" cy="166" r="68" fill="#10131b" opacity=".24" />
+  <circle cx="354" cy="340" r="82" fill="#10131b" opacity=".18" />
+  <g filter="url(#shadow)">
+    <path d="M304 80 396 62 374 152 210 316 140 246 304 80Z" fill="url(#blade)" />
+    <path d="M130 232 226 328 190 364 94 268 130 232Z" fill="#2a3142" />
+    <path d="M91 285 173 367 132 408 50 326 91 285Z" fill="#1b202d" />
+    <path d="M276 108 368 80 341 174" fill="none" stroke="#fff9d7" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" opacity=".75" />
+    <path d="M244 310 290 356 246 400 200 354 244 310Z" fill="#f7f2e8" opacity=".88" />
+    <path d="M262 342 338 418" stroke="#10131b" stroke-width="22" stroke-linecap="round" opacity=".7" />
+  </g>
+  <path d="M128 132c30-34 76-50 120-40" fill="none" stroke="#f7f2e8" stroke-width="18" stroke-linecap="round" opacity=".62" />
+</svg>

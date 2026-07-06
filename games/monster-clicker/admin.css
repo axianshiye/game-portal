@@ -1,0 +1,507 @@
+:root {
+  color-scheme: dark;
+  --bg: #10131b;
+  --panel: #171c28;
+  --panel-2: #202737;
+  --text: #f4f7fb;
+  --muted: #a9b4c7;
+  --line: rgba(255, 255, 255, 0.12);
+  --accent: #58d0c7;
+  --warn: #f5df8b;
+  font-family:
+    Inter, "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--text);
+  background: var(--bg);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.admin-shell {
+  width: min(1600px, calc(100vw - 20px));
+  margin: 0 auto;
+  padding: 14px 0 28px;
+}
+
+.admin-header,
+.section-heading,
+.upload-row,
+.asset-card,
+.record-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.admin-header {
+  margin-bottom: 16px;
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  color: var(--accent);
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: clamp(1.45rem, 3vw, 2.35rem);
+}
+
+h2 {
+  font-size: 1.15rem;
+}
+
+h3 {
+  font-size: 1rem;
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.36fr) minmax(390px, 0.78fr);
+  gap: 10px;
+}
+
+.panel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.28);
+}
+
+.editor-panel,
+.side-panel {
+  padding: 10px;
+}
+
+.side-panel {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+}
+
+.side-panel section,
+.upload-box {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.section-heading {
+  margin-bottom: 8px;
+}
+
+.section-heading p,
+.upload-box p,
+.logic-list p,
+.rules-list {
+  color: var(--muted);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.compact {
+  margin-bottom: 8px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+label,
+.wide-field {
+  display: grid;
+  gap: 4px;
+}
+
+label span {
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  background: #0f1420;
+  padding: 7px 9px;
+  outline: none;
+}
+
+input[readonly] {
+  color: var(--warn);
+  background: rgba(15, 20, 32, 0.62);
+  cursor: default;
+}
+
+textarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: rgba(88, 208, 199, 0.78);
+  box-shadow: 0 0 0 3px rgba(88, 208, 199, 0.14);
+}
+
+.wide-field {
+  margin-top: 8px;
+}
+
+.text-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.advanced-json {
+  margin-top: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.advanced-json summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+  color: var(--text);
+  font-weight: 900;
+}
+
+.advanced-json summary small,
+.wide-field small {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.primary-button,
+.ghost-button {
+  min-height: 38px;
+  border: 0;
+  border-radius: 8px;
+  padding: 0 13px;
+  color: #081219;
+  background: var(--accent);
+  font-weight: 900;
+  text-decoration: none;
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.ghost-button {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--line);
+}
+
+.primary-button:disabled,
+.ghost-button:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+}
+
+.upload-box {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.required-assets {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.required-asset {
+  display: grid;
+  gap: 4px;
+  min-height: 74px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 8px;
+  background: rgba(15, 20, 32, 0.72);
+}
+
+.required-asset span {
+  color: var(--warn);
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.required-asset small {
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.required-asset.is-done {
+  border-color: rgba(88, 208, 199, 0.38);
+}
+
+.required-asset.is-done span {
+  color: var(--accent);
+}
+
+.required-asset.is-queued span {
+  color: #f5df8b;
+}
+
+.drop-zone {
+  min-height: 112px;
+  border: 2px dashed rgba(88, 208, 199, 0.5);
+  border-radius: 8px;
+  padding: 14px;
+  place-items: center;
+  text-align: center;
+  background: rgba(88, 208, 199, 0.07);
+  cursor: pointer;
+}
+
+.drop-zone input {
+  display: none;
+}
+
+.drop-zone strong {
+  font-size: 1.05rem;
+}
+
+.drop-zone span {
+  max-width: 680px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.drop-zone.is-dragging {
+  border-color: var(--accent);
+  background: rgba(88, 208, 199, 0.16);
+}
+
+.upload-actions,
+.record-browser-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.record-browser-controls select {
+  min-width: 0;
+}
+
+.upload-queue {
+  display: grid;
+  gap: 8px;
+}
+
+.queue-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(170px, 0.38fr) auto;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px;
+  background: var(--panel-2);
+}
+
+.queue-card.is-unmatched {
+  border-color: rgba(245, 223, 139, 0.42);
+}
+
+.queue-card.is-uploaded {
+  border-color: rgba(88, 208, 199, 0.38);
+}
+
+.queue-card p,
+.queue-card small {
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.upload-row {
+  align-items: stretch;
+}
+
+.upload-row select {
+  max-width: 180px;
+}
+
+.asset-list,
+.record-list {
+  display: grid;
+  gap: 8px;
+  max-height: 560px;
+  overflow: auto;
+}
+
+.asset-card,
+.record-card {
+  align-items: flex-start;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px;
+  background: var(--panel-2);
+}
+
+.record-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.record-card.system-record {
+  border-color: rgba(88, 208, 199, 0.42);
+  background: linear-gradient(180deg, rgba(88, 208, 199, 0.12), rgba(255, 255, 255, 0.04));
+}
+
+.record-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 6px;
+  border-radius: 999px;
+  padding: 1px 6px;
+  color: #081114;
+  background: var(--accent);
+  font-size: 0.72rem;
+  font-weight: 900;
+  vertical-align: 2px;
+}
+
+.asset-card img {
+  width: 62px;
+  height: 62px;
+  border-radius: 8px;
+  object-fit: contain;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.asset-card div,
+.record-card div {
+  min-width: 0;
+}
+
+.asset-card code,
+.record-card code {
+  color: var(--warn);
+  word-break: break-all;
+}
+
+.asset-card p,
+.record-card p {
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.4;
+}
+
+.record-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.record-meta span {
+  border-radius: 999px;
+  padding: 2px 7px;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.missing-assets {
+  margin: 6px 0 2px;
+  color: var(--warn) !important;
+}
+
+.complete-assets {
+  margin: 6px 0 2px;
+  color: var(--accent) !important;
+}
+
+.rules-list {
+  display: grid;
+  gap: 8px;
+  padding-left: 18px;
+  line-height: 1.5;
+}
+
+.logic-list {
+  display: grid;
+  gap: 10px;
+}
+
+.logic-list strong {
+  color: var(--text);
+}
+
+.record-card button {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 1040px) {
+  .admin-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .side-panel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .side-panel section:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 720px) {
+  .form-grid,
+  .text-grid,
+  .required-assets,
+  .side-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .queue-card {
+    grid-template-columns: 1fr;
+  }
+
+  .upload-actions,
+  .record-browser-controls {
+    flex-direction: column;
+  }
+}

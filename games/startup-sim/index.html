@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>像素创业国</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="game-shell">
+      <section class="topbar" aria-label="创业状态">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <div>
+            <h1>像素创业国</h1>
+            <p>跑地图、看风口、招秘书、做生意，把虚拟国家做成你的商业版图。</p>
+          </div>
+        </div>
+        <div class="stat-strip">
+          <div class="stat">
+            <span>资金</span>
+            <strong id="cash">¥120,000</strong>
+          </div>
+          <div class="stat">
+            <span>时间</span>
+            <strong id="time">2020年1月1日 08:00</strong>
+          </div>
+          <div class="stat">
+            <span>体力</span>
+            <strong id="stamina">100</strong>
+          </div>
+          <div class="stat">
+            <span>精力</span>
+            <strong id="energy">82</strong>
+          </div>
+          <div class="stat">
+            <span>声望</span>
+            <strong id="reputation">12</strong>
+          </div>
+        </div>
+        <div class="time-controls" aria-label="时间流速">
+          <button class="speed-button" data-clock-speed="0">暂停</button>
+          <button class="speed-button active" data-clock-speed="1">1小时/秒</button>
+          <button class="speed-button" data-clock-speed="3">3小时/秒</button>
+        </div>
+      </section>
+
+      <section class="newsbar" aria-label="新闻播报">
+        <strong>新闻</strong>
+        <div class="ticker">
+          <p id="newsTicker"></p>
+        </div>
+        <button class="news-open" data-tab="news">打开</button>
+      </section>
+
+      <div id="toast" class="toast-layer" aria-live="polite"></div>
+
+      <section class="layout" id="mainLayout">
+        <section class="main-board" aria-label="主要板块">
+          <div class="tab-panel" id="tabPanel"></div>
+        </section>
+
+      </section>
+
+      <nav class="bottom-tabs" aria-label="板块切换">
+        <button class="tab-button active" data-tab="city">城市</button>
+        <button class="tab-button" data-tab="stocks">股票</button>
+        <button class="tab-button" data-tab="business">商业</button>
+        <button class="tab-button" data-tab="secretary">秘书</button>
+        <button class="tab-button" data-tab="school">商学院</button>
+        <button class="tab-button" data-tab="me">我的</button>
+        <button class="tab-button" data-tab="settings">设置</button>
+      </nav>
+    </main>
+
+    <dialog id="projectDialog" class="project-dialog">
+      <form method="dialog">
+        <div class="dialog-head">
+          <div>
+            <span id="districtLabel"></span>
+            <h2>选择创业项目</h2>
+          </div>
+          <button class="icon-button" value="cancel" aria-label="关闭">×</button>
+        </div>
+        <div class="project-grid" id="projectGrid"></div>
+      </form>
+    </dialog>
+
+    <dialog id="leaseDialog" class="project-dialog lease-dialog">
+      <form method="dialog">
+        <div class="dialog-head">
+          <div>
+            <span id="leaseLabel"></span>
+            <h2>铺位租赁</h2>
+          </div>
+          <button class="icon-button" value="cancel" aria-label="关闭">×</button>
+        </div>
+        <div id="leaseContent"></div>
+      </form>
+    </dialog>
+
+    <dialog id="companyDialog" class="project-dialog company-dialog">
+      <form method="dialog">
+        <div class="dialog-head">
+          <div>
+            <span>企业开办</span>
+            <h2>选择公司类型</h2>
+          </div>
+          <button class="icon-button" value="cancel" aria-label="关闭">×</button>
+        </div>
+        <div id="companyDialogContent"></div>
+      </form>
+    </dialog>
+
+    <dialog id="sleepDialog" class="project-dialog">
+      <form method="dialog">
+        <div class="dialog-head">
+          <div>
+            <span>身体报警</span>
+            <h2>需要睡觉</h2>
+          </div>
+          <button class="icon-button" value="cancel" aria-label="关闭">×</button>
+        </div>
+        <div class="dialog-copy" id="sleepDialogText"></div>
+        <div class="dialog-actions">
+          <button class="primary-action alt" value="sleep" data-sleep-now="1">去睡觉</button>
+          <button class="primary-action" value="overdraft" data-keep-overdraft="1">继续透支</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="stockTradeDialog" class="project-dialog stock-trade-dialog">
+      <form method="dialog">
+        <div class="dialog-head">
+          <div>
+            <span id="stockTradeLabel"></span>
+            <h2>股票买卖</h2>
+          </div>
+          <button class="icon-button" value="cancel" aria-label="关闭">×</button>
+        </div>
+        <div id="stockTradeContent"></div>
+      </form>
+    </dialog>
+
+    <dialog id="inheritanceDialog" class="project-dialog">
+      <form method="dialog">
+        <div class="dialog-head">
+          <div>
+            <span>继承选择</span>
+            <h2>负债遗产</h2>
+          </div>
+        </div>
+        <div class="dialog-copy" id="inheritanceDialogText"></div>
+        <div class="dialog-actions">
+          <button class="primary-action alt" value="continue" data-inheritance-choice="continue">继续经营</button>
+          <button class="primary-action" value="end" data-inheritance-choice="end">结束游戏</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="gameOverDialog" class="project-dialog game-over-dialog">
+      <form method="dialog">
+        <div class="dialog-head">
+          <div>
+            <span id="gameOverKicker">终局新闻</span>
+            <h2 id="gameOverTitle">游戏结束</h2>
+          </div>
+        </div>
+        <div class="dialog-copy" id="gameOverText"></div>
+        <div class="dialog-actions">
+          <button class="primary-action" value="close">停留在档案</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script src="./game.js"></script>
+  </body>
+</html>

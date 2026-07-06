@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>副本刷装录后台</title>
+    <link rel="stylesheet" href="./admin.css?v=0.1.7" />
+    <script src="./admin.js?v=0.1.7" defer></script>
+  </head>
+  <body>
+    <main class="admin-shell">
+      <header class="admin-header">
+        <div>
+          <p class="eyebrow">本地开发后台</p>
+          <h1>资源与数值配置</h1>
+        </div>
+        <a class="ghost-button" href="./index.html">返回游戏</a>
+      </header>
+
+      <section class="admin-grid">
+        <form class="panel editor-panel" id="recordForm">
+          <div class="section-heading">
+            <div>
+              <h2>配置记录</h2>
+              <p>先保存一条记录，再上传图片资源到这条记录。</p>
+            </div>
+            <button class="primary-button" type="submit">保存记录</button>
+          </div>
+
+          <div class="form-grid">
+            <label>
+              <span>类型</span>
+              <select id="recordType">
+                <option value="equipment">装备</option>
+                <option value="weapon">武器模板</option>
+                <option value="item">物品</option>
+                <option value="monster">怪物</option>
+                <option value="player">主角</option>
+                <option value="pet">宠物</option>
+                <option value="set">套装</option>
+              </select>
+            </label>
+            <label>
+              <span>系统ID</span>
+              <input id="recordId" type="text" readonly required />
+            </label>
+            <label>
+              <span>名称</span>
+              <input id="recordName" type="text" placeholder="星火战盔" required />
+            </label>
+            <label>
+              <span>稀有度</span>
+              <select id="recordRarity">
+                <option value="common">普通</option>
+                <option value="fine">精良</option>
+                <option value="rare">稀有</option>
+                <option value="epic">史诗</option>
+                <option value="legend">传说</option>
+              </select>
+            </label>
+            <label>
+              <span>职业</span>
+              <select id="recordClass">
+                <option value="any">通用</option>
+                <option value="warrior">战士</option>
+                <option value="mage">法师</option>
+              </select>
+            </label>
+            <label>
+              <span>部位</span>
+              <select id="recordSlot">
+                <option value="none">无</option>
+                <option value="weapon">武器</option>
+                <option value="helm">头盔</option>
+                <option value="hat">帽子</option>
+                <option value="shoulders">护肩</option>
+                <option value="armor">胸甲</option>
+                <option value="gloves">手套</option>
+                <option value="pants">裤子</option>
+                <option value="boots">战靴</option>
+                <option value="ring">戒指</option>
+              </select>
+            </label>
+            <label>
+              <span>武器类型</span>
+              <select id="recordWeaponType">
+                <option value="none">无</option>
+                <option value="staff">法杖</option>
+                <option value="orb">法珠</option>
+                <option value="axe">斧头</option>
+                <option value="greatsword">大剑</option>
+                <option value="hammer">锤子</option>
+              </select>
+            </label>
+            <label>
+              <span>等级</span>
+              <input id="recordLevel" type="number" min="1" max="70" value="1" />
+            </label>
+            <label>
+              <span>售价</span>
+              <input id="recordSellPrice" type="number" min="0" value="0" />
+            </label>
+            <label>
+              <span>套装名</span>
+              <input id="recordSetName" type="text" placeholder="星火" />
+            </label>
+            <label>
+              <span>套装件数</span>
+              <input id="recordSetPieces" type="number" min="0" value="0" />
+            </label>
+          </div>
+
+          <details class="advanced-json">
+            <summary>
+              <span>高级数值配置</span>
+              <small>JSON 是给程序读取的属性表，先做图片资源时可以暂时不管。</small>
+            </summary>
+            <label class="wide-field">
+              <span>装备基础属性 JSON</span>
+              <textarea id="recordStats" rows="5">{ "attack": 0, "magic": 0, "armor": 0, "hp": 0, "crit": 0 }</textarea>
+              <small>用于装备数值：攻击、法术、护甲、生命、暴击。</small>
+            </label>
+            <label class="wide-field">
+              <span>怪物 / 主角 / 宠物属性 JSON</span>
+              <textarea id="recordActorStats" rows="5">{ "hp": 0, "attack": 0, "defense": 0, "dodge": 0, "speed": 0 }</textarea>
+              <small>用于角色或怪物数值：生命、攻击、防御、闪避、速度。</small>
+            </label>
+            <label class="wide-field">
+              <span>套装属性 JSON</span>
+              <textarea id="recordSetBonus" rows="4">{ "pieces": 2, "bonus": { "attack": 0, "crit": 0 } }</textarea>
+              <small>用于套装效果：几件生效，以及增加哪些属性。</small>
+            </label>
+          </details>
+          <div class="text-grid">
+            <label class="wide-field">
+              <span>技能 / 说明</span>
+              <textarea id="recordSkills" rows="3" placeholder="每行一个技能，例如：Lv.5 嘲讽：怪物优先攻击宠物"></textarea>
+            </label>
+            <label class="wide-field">
+              <span>备注</span>
+              <textarea id="recordNotes" rows="3" placeholder="美术风格、掉落来源、数值意图等"></textarea>
+            </label>
+          </div>
+
+          <section class="upload-box">
+            <div>
+              <h3>批量上传图片</h3>
+              <p>拖入当前记录需要的图片，系统会按文件名自动匹配图片位。支持 PNG/JPG/WebP/GIF。</p>
+            </div>
+            <div id="requiredAssetSlots" class="required-assets"></div>
+            <label class="drop-zone" id="assetDropZone">
+              <input id="assetFile" type="file" multiple accept=".png,.jpg,.jpeg,.webp,.gif,image/png,image/jpeg,image/webp,image/gif" />
+              <strong>把多张图片拖到这里</strong>
+              <span>或点击选择多张图片。文件名建议包含：背包、剪影、战场、怪物、宠物、主角、图标、动图等关键词。</span>
+            </label>
+            <div class="upload-actions">
+              <button class="primary-button" id="uploadButton" type="button">上传匹配图片</button>
+              <button class="ghost-button" id="clearQueuedAssetsButton" type="button">清空待上传</button>
+            </div>
+            <div id="uploadQueue" class="upload-queue"></div>
+            <div id="assetList" class="asset-list"></div>
+          </section>
+        </form>
+
+        <aside class="panel side-panel">
+          <section>
+            <h2>绘制要求</h2>
+            <ul class="rules-list">
+              <li>背包缩略图：建议 256x256，透明背景，主体占画面 80%，用于背包和商店。</li>
+              <li>装备剪影位图：建议 512x512，透明背景，装备要对齐人物剪影对应部位。</li>
+              <li>战场背视图：建议 512x768，透明背景，从玩家背后看，换装备时会同步替换。</li>
+              <li>怪物图：建议 768x768，保留可点击主体区域，BOSS 可以更大但不要贴边。</li>
+              <li>宠物图：建议 512x512，站姿或待机循环都可以；动图优先 WebP/GIF。</li>
+              <li>物品图：普通物品用静图，宝箱、稀有材料、技能特效可以用动图。</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2>属性清单</h2>
+            <div class="logic-list">
+              <p><strong>装备 / 武器：</strong>等级、职业、部位、武器类型、稀有度、售价、熔炼材料、耐久、自动点击伤害和间隔、套装名和套装件数加成。</p>
+              <p><strong>怪物：</strong>类型、小兵/精英/BOSS/宝箱怪、等级、生命、攻击、闪避、经验、金币、掉落表、技能或词缀。</p>
+              <p><strong>主角：</strong>职业、等级、经验、生命、攻击/法术、护甲、暴击、闪避、战力、装备栏图片。</p>
+              <p><strong>宠物：</strong>类型、稀有度、生命、攻击、嘲讽、辅助强度、技能解锁等级、售价、出战图。</p>
+              <p><strong>物品：</strong>分类、堆叠数量、售价、用途、是否动图、是否可消耗、来源和掉落权重。</p>
+            </div>
+          </section>
+
+          <section>
+            <div class="section-heading compact">
+              <div>
+                <h2>已有内容浏览</h2>
+                <p id="saveState">未保存</p>
+              </div>
+              <button class="ghost-button" id="newRecordButton" type="button">新建</button>
+            </div>
+            <div class="record-browser-controls">
+              <select id="recordTypeFilter" aria-label="按类型筛选">
+                <option value="all">全部类型</option>
+                <option value="equipment">装备</option>
+                <option value="weapon">武器模板</option>
+                <option value="item">物品</option>
+                <option value="monster">怪物</option>
+                <option value="player">主角</option>
+                <option value="pet">宠物</option>
+                <option value="set">套装</option>
+              </select>
+              <select id="assetStatusFilter" aria-label="按图片状态筛选">
+                <option value="all">全部图片状态</option>
+                <option value="missing">只看缺图</option>
+                <option value="complete">只看完整</option>
+              </select>
+            </div>
+            <div id="recordList" class="record-list"></div>
+          </section>
+        </aside>
+      </section>
+    </main>
+  </body>
+</html>
