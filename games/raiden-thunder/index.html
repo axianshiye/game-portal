@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <title>雷霆弹幕</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="game-frame" aria-label="雷霆弹幕游戏">
+        <canvas id="game" width="540" height="860"></canvas>
+        <div class="hud">
+          <div><span>分数</span><strong id="score">0</strong></div>
+          <div><span>金币</span><strong id="gold">0</strong></div>
+          <div><span>武器</span><strong id="weapon">脉冲</strong></div>
+          <div><span>生命</span><strong id="lives">3</strong></div>
+          <div><span>炸弹</span><strong id="bombs">2</strong></div>
+          <div><span>关卡</span><strong id="wave">1</strong></div>
+        </div>
+        <div id="toast" class="toast" hidden></div>
+        <div id="menu" class="overlay">
+          <div class="panel">
+            <p class="eyebrow">Thunder Squadron</p>
+            <h1>雷霆弹幕</h1>
+            <div class="mode-controls" id="mode-controls"></div>
+            <div class="ships" id="ships"></div>
+            <div class="menu-actions">
+              <button id="start">开始出击</button>
+              <button id="how">玩法提示</button>
+            </div>
+            <p id="hint" class="hint">方向键/WASD 移动，空格炸弹，P 暂停。击破 Boss 后进入整备页。</p>
+          </div>
+        </div>
+        <div id="prep" class="overlay" hidden>
+          <div class="panel prep-panel">
+            <p class="eyebrow">Hangar Bay</p>
+            <h1>战机整备</h1>
+            <div class="prep-summary">
+              <div><span>关卡</span><strong id="prep-stage">1</strong></div>
+              <div><span>金币</span><strong id="prep-gold">0</strong></div>
+              <div><span>战机</span><strong id="prep-ship">苍隼</strong></div>
+            </div>
+            <div id="result-panel" class="meta-panel"></div>
+            <div id="route-panel" class="meta-panel"></div>
+            <div id="reward-panel" class="meta-panel"></div>
+            <div class="upgrades" id="upgrades"></div>
+            <div id="shop-panel" class="meta-panel"></div>
+            <div id="tech-panel" class="meta-panel"></div>
+            <div id="task-panel" class="meta-panel"></div>
+            <div id="codex-panel" class="meta-panel"></div>
+            <div id="settings-panel" class="meta-panel"></div>
+            <div class="menu-actions">
+              <button id="next-stage">进入下一关</button>
+              <button id="repair">快速修复</button>
+            </div>
+            <p id="prep-hint" class="hint">升级会永久强化当前战机，下一关敌人会更强。</p>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script src="./game.js"></script>
+  </body>
+</html>
