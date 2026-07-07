@@ -2,13 +2,36 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="screen-orientation" content="portrait" />
     <meta name="x5-orientation" content="portrait" />
+    <meta name="theme-color" content="#fff1f7" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="甜甜三消" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <title>甜甜三消</title>
-    <link rel="stylesheet" href="styles.css?v=portrait-lock-1" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="assets/app-icons/icon-180.png" />
+    <link rel="icon" sizes="192x192" href="assets/app-icons/icon-192.png" />
+    <link rel="stylesheet" href="styles.css?v=loader-capybara-1" />
   </head>
   <body>
+    <div id="loadingScreen" class="loading-screen" role="status" aria-live="polite">
+      <div class="loading-card">
+        <div class="loader-mascot-wrap">
+          <img id="loaderMascot" class="loader-mascot" src="assets/mascot/cheer.png" alt="正在跑步的卡皮巴拉" />
+        </div>
+        <div class="loader-copy">
+          <strong>甜点准备中</strong>
+          <span id="loadingText">卡皮巴拉正在冲向厨房</span>
+        </div>
+        <div class="loader-track" aria-label="加载进度">
+          <div id="loaderFill" class="loader-fill"></div>
+          <span id="loaderPercent" class="loader-percent">0%</span>
+        </div>
+      </div>
+    </div>
     <main class="game-shell" aria-label="甜甜三消游戏">
       <section class="top-panel">
         <div class="stats" aria-label="游戏状态">
@@ -33,6 +56,10 @@
 
       <section class="play-area">
         <div class="board-wrap">
+          <div id="mascot" class="mascot" aria-live="polite">
+            <div id="mascotBubble" class="mascot-bubble">加油，今天也要甜甜的！</div>
+            <img id="mascotImg" src="assets/mascot/idle.png" alt="戴厨师帽的卡皮巴拉" />
+          </div>
           <div id="board" class="board" aria-label="三消棋盘"></div>
           <div id="toast" class="toast" role="status" aria-live="polite"></div>
         </div>
@@ -107,6 +134,6 @@
       </div>
     </div>
 
-    <script src="game.js?v=portrait-lock-1"></script>
+    <script src="game.js?v=loader-capybara-1"></script>
   </body>
 </html>

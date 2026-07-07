@@ -1,5 +1,5 @@
 const SIZE = 8;
-const LEVELS = [
+const BASE_LEVELS = [
   { targetScore: 3000, moves: 30, orders: [{ type: 0, need: 8 }, { type: 1, need: 8 }] },
   { targetScore: 4800, moves: 28, orders: [{ type: 2, need: 10 }, { type: 5, need: 10 }] },
   { targetScore: 6800, moves: 26, orders: [{ type: 3, need: 12 }, { type: 4, need: 12 }, { type: 1, need: 8 }] },
@@ -11,12 +11,69 @@ const TYPES = [
   { name: "马卡龙", src: "assets/pieces/macaron.png" },
   { name: "布丁杯", src: "assets/pieces/pudding.png" },
   { name: "花朵饼", src: "assets/pieces/flower-cookie.png" },
+  { name: "蓝莓冻", src: "assets/pieces/blueberry-jelly.png" },
+  { name: "彩虹糖", src: "assets/pieces/rainbow-swirl.png" },
 ];
 const SPECIAL_TYPES = {
   row: { name: "糖锤", src: "assets/boosters/hammer.png" },
   col: { name: "糖锤", src: "assets/boosters/hammer.png" },
   bomb: { name: "星爆", src: "assets/boosters/spark.png" },
 };
+const BOOSTER_ASSETS = [
+  "assets/boosters/hammer.png",
+  "assets/boosters/spark.png",
+  "assets/boosters/row-blast.png",
+  "assets/boosters/col-blast.png",
+  "assets/boosters/cross-blast.png",
+  "assets/boosters/add-moves.png",
+];
+const OBSTACLE_TYPES = {
+  ice: { name: "冰块", src: "assets/obstacles/ice.png" },
+  fire: { name: "火焰", src: "assets/obstacles/fire.png" },
+  stone: { name: "石头", src: "assets/obstacles/stone.png" },
+};
+const OBSTACLE_ASSETS = Object.values(OBSTACLE_TYPES).map((item) => item.src);
+const MASCOT_ASSETS = {
+  idle: "assets/mascot/idle.png",
+  cheer: "assets/mascot/cheer.png",
+  wow: "assets/mascot/wow.png",
+  legend: "assets/mascot/legend.png",
+};
+const MASCOT_LINES = {
+  four: ["太厉害了！", "这个四消很漂亮！", "甜度拉满啦！", "好手感！"],
+  five: ["天啊，真厉害！", "哇！", "这一下太会了！", "星星都亮起来了！"],
+  six: ["太崇拜你了！", "牛啊！", "这也太强了！", "厨师帽都要飞起来啦！"],
+  combo: ["你真的是神啊！", "无人能敌！", "连起来了，太猛了！", "这一波甜到发光！"],
+  ice: ["冰块被敲开啦！", "解冻成功！"],
+  fire: ["小心火焰，把糖烧成石头了！", "火焰来捣乱啦！"],
+};
+const MASCOT_VOICES = {
+  "太厉害了！": "assets/voices/four-01.mp3",
+  "这个四消很漂亮！": "assets/voices/four-02.mp3",
+  "甜度拉满啦！": "assets/voices/four-03.mp3",
+  "好手感！": "assets/voices/four-04.mp3",
+  "天啊，真厉害！": "assets/voices/five-05.mp3",
+  "哇！": "assets/voices/five-06.mp3",
+  "这一下太会了！": "assets/voices/five-07.mp3",
+  "星星都亮起来了！": "assets/voices/five-08.mp3",
+  "太崇拜你了！": "assets/voices/six-09.mp3",
+  "牛啊！": "assets/voices/six-10.mp3",
+  "这也太强了！": "assets/voices/six-11.mp3",
+  "厨师帽都要飞起来啦！": "assets/voices/six-12.mp3",
+  "你真的是神啊！": "assets/voices/combo-13.mp3",
+  "无人能敌！": "assets/voices/combo-14.mp3",
+  "连起来了，太猛了！": "assets/voices/combo-15.mp3",
+  "这一波甜到发光！": "assets/voices/combo-16.mp3",
+  "冰块被敲开啦！": "assets/voices/ice-17.mp3",
+  "解冻成功！": "assets/voices/ice-18.mp3",
+  "小心火焰，把糖烧成石头了！": "assets/voices/fire-19.mp3",
+  "火焰来捣乱啦！": "assets/voices/fire-20.mp3",
+};
+const REQUIRED_IMAGE_ASSETS = [
+  ...new Set([...TYPES.map((item) => item.src), ...BOOSTER_ASSETS, ...OBSTACLE_ASSETS, ...Object.values(MASCOT_ASSETS)]),
+];
+const REQUIRED_AUDIO_ASSETS = Object.values(MASCOT_VOICES);
+const PROGRESS_KEY = "sweet-match-current-level";
 
 const boardEl = document.querySelector("#board");
 const levelEl = document.querySelector("#level");
@@ -51,6 +108,13 @@ const modalTextEl = document.querySelector("#modalText");
 const nextBtn = document.querySelector("#nextBtn");
 const comboBannerEl = document.querySelector("#comboBanner");
 const orientationLockEl = document.querySelector("#orientationLock");
+const loadingScreenEl = document.querySelector("#loadingScreen");
+const loaderFillEl = document.querySelector("#loaderFill");
+const loaderPercentEl = document.querySelector("#loaderPercent");
+const loadingTextEl = document.querySelector("#loadingText");
+const mascotEl = document.querySelector("#mascot");
+const mascotImgEl = document.querySelector("#mascotImg");
+const mascotBubbleEl = document.querySelector("#mascotBubble");
 
 document.addEventListener(
   "touchmove",
@@ -59,6 +123,11 @@ document.addEventListener(
   },
   { passive: false }
 );
+
+document.addEventListener("pointerdown", unlockAudio, { passive: true, capture: true });
+document.addEventListener("touchstart", unlockAudio, { passive: true, capture: true });
+document.addEventListener("touchstart", rememberTouchStart, { passive: false, capture: true });
+document.addEventListener("touchmove", blockBackSwipe, { passive: false, capture: true });
 
 let board = [];
 let selected = null;
@@ -76,9 +145,13 @@ let toastTimer = null;
 let bannerTimer = null;
 let audioContext = null;
 let soundEnabled = getSoundPreference();
+let audioUnlocked = false;
+let mascotVoiceAudio = null;
 let dragStart = null;
+let touchStart = null;
 let suppressNextClick = false;
 let isLandscapeLocked = false;
+let turnsTaken = 0;
 
 function isPhoneLandscape() {
   return window.matchMedia("(orientation: landscape) and (max-height: 760px)").matches;
@@ -102,6 +175,96 @@ updateOrientationLock();
 window.addEventListener("resize", updateOrientationLock);
 window.addEventListener("orientationchange", updateOrientationLock);
 
+function preloadImage(src) {
+  return new Promise((resolve) => {
+    const image = new Image();
+    image.decoding = "async";
+    image.onload = async () => {
+      try {
+        await image.decode();
+      } catch {
+        // onload is enough for browsers without decode support.
+      }
+      resolve({ src, ok: true });
+    };
+    image.onerror = () => resolve({ src, ok: false });
+    image.src = src;
+  });
+}
+
+function preloadAudio(src) {
+  return new Promise((resolve) => {
+    const audio = new Audio();
+    audio.preload = "auto";
+    audio.oncanplaythrough = () => resolve({ src, ok: true });
+    audio.onerror = () => resolve({ src, ok: false });
+    audio.src = src;
+    audio.load();
+    setTimeout(() => resolve({ src, ok: true }), 1800);
+  });
+}
+
+function updateLoadingProgress(progress, text = null) {
+  const clamped = Math.max(0, Math.min(1, progress));
+  document.documentElement.style.setProperty("--loader-progress", clamped.toFixed(3));
+  if (loaderFillEl) loaderFillEl.style.setProperty("--loader-progress", clamped.toFixed(3));
+  if (loaderPercentEl) loaderPercentEl.textContent = `${Math.round(clamped * 100)}%`;
+  if (text && loadingTextEl) loadingTextEl.textContent = text;
+}
+
+async function preloadWithProgress(items, loader, start, end, text) {
+  if (items.length === 0) {
+    updateLoadingProgress(end, text);
+    return [];
+  }
+
+  let done = 0;
+  const results = await Promise.all(
+    items.map(async (item) => {
+      const result = await loader(item);
+      done += 1;
+      updateLoadingProgress(start + (done / items.length) * (end - start), text);
+      return result;
+    })
+  );
+  return results;
+}
+
+async function finishLoadingScreen() {
+  updateLoadingProgress(1, "出发，开始甜甜三消！");
+  await sleep(420);
+  loadingScreenEl?.classList.add("hidden");
+}
+
+async function preloadRequiredImages() {
+  updateLoadingProgress(0.04, "卡皮巴拉正在检查糖果");
+  const firstPass = await preloadWithProgress(REQUIRED_IMAGE_ASSETS, preloadImage, 0.08, 0.82, "正在装盘糖果素材");
+  const missing = firstPass.filter((item) => !item.ok).map((item) => item.src);
+  if (missing.length > 0) {
+    const secondPass = await preloadWithProgress(
+      missing.map((src) => `${src}?retry=${Date.now()}`),
+      preloadImage,
+      0.82,
+      0.9,
+      "卡皮巴拉正在补齐素材"
+    );
+    const stillMissing = secondPass.filter((item) => !item.ok);
+    if (stillMissing.length > 0) showToast("部分素材稍后补上");
+  }
+  preloadWithProgress(REQUIRED_AUDIO_ASSETS, preloadAudio, 0.9, 0.98, "正在准备卡皮巴拉声音").catch(() => {});
+  updateLoadingProgress(0.98, "甜点马上出炉");
+  await sleep(260);
+}
+
+async function bootGame() {
+  busy = true;
+  registerServiceWorker();
+  enableBackNavigationGuard();
+  await preloadRequiredImages();
+  await startLevel(getSavedLevel());
+  await finishLoadingScreen();
+}
+
 function getSoundPreference() {
   try {
     return window.localStorage?.getItem("sweet-match-sound") !== "off";
@@ -118,16 +281,115 @@ function setSoundPreference(enabled) {
   }
 }
 
+function getSavedLevel() {
+  try {
+    const saved = Number.parseInt(window.localStorage?.getItem(PROGRESS_KEY) || "0", 10);
+    return Number.isFinite(saved) && saved >= 0 ? saved : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function saveLevelProgress(nextLevel) {
+  try {
+    const saved = getSavedLevel();
+    window.localStorage?.setItem(PROGRESS_KEY, String(Math.max(saved, nextLevel)));
+  } catch {
+    // Progress still advances for the current session when storage is unavailable.
+  }
+}
+
+function registerServiceWorker() {
+  if (!("serviceWorker" in navigator)) return;
+  if (!window.isSecureContext && location.hostname !== "localhost" && location.hostname !== "127.0.0.1") return;
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+
+function enableBackNavigationGuard() {
+  if (!window.history?.pushState) return;
+  try {
+    window.history.replaceState({ sweetMatch: true }, "", window.location.href);
+    window.history.pushState({ sweetMatchGuard: true }, "", window.location.href);
+    window.addEventListener("popstate", () => {
+      window.history.pushState({ sweetMatchGuard: true }, "", window.location.href);
+      showToast("游戏中已防止误返回");
+    });
+  } catch {
+    // Touch guards still cover browsers that restrict history state.
+  }
+}
+
+function rememberTouchStart(event) {
+  const touch = event.touches?.[0];
+  if (!touch) return;
+  touchStart = { x: touch.clientX, y: touch.clientY, edge: touch.clientX < 34 };
+}
+
+function blockBackSwipe(event) {
+  if (!touchStart?.edge) return;
+  const touch = event.touches?.[0];
+  if (!touch) return;
+  const dx = touch.clientX - touchStart.x;
+  const dy = touch.clientY - touchStart.y;
+  if (dx > 8 && Math.abs(dx) > Math.abs(dy) * 1.12) event.preventDefault();
+}
+
+function levelNumber() {
+  return level + 1;
+}
+
+function buildLevelConfig(levelIndex) {
+  const base = BASE_LEVELS[levelIndex % BASE_LEVELS.length];
+  const cycle = Math.floor(levelIndex / BASE_LEVELS.length);
+  const shownLevel = levelIndex + 1;
+  const typeCount = typeCountForLevel(levelIndex);
+  const config = {
+    targetScore: base.targetScore + cycle * 850,
+    moves: Math.max(20, base.moves - Math.floor(levelIndex / 5)),
+    orders: base.orders.map((order) => ({ ...order, need: order.need + Math.floor(levelIndex / 4) })),
+    typeCount,
+    iceCount: 0,
+    initialStones: 0,
+    fireEvery: 0,
+  };
+
+  if (typeCount >= 7) config.orders.push({ type: 6, need: 8 + Math.floor((shownLevel - 31) / 4) });
+  if (typeCount >= 8) config.orders.push({ type: 7, need: 8 + Math.floor((shownLevel - 41) / 4) });
+
+  if (shownLevel >= 10 && shownLevel <= 20) {
+    config.iceCount = Math.min(18, 6 + Math.floor((shownLevel - 10) * 1.2));
+    config.orders.push({ obstacle: "ice", need: config.iceCount });
+    config.moves += 3;
+  }
+
+  if (shownLevel >= 20 && shownLevel <= 30) {
+    config.initialStones = Math.min(6, 2 + Math.floor((shownLevel - 20) / 3));
+    config.fireEvery = Math.max(2, 4 - Math.floor((shownLevel - 20) / 5));
+    config.moves += 2;
+  }
+
+  return config;
+}
+
 function tile(type = randType(), special = null) {
-  return { type, special };
+  return { type, special, ice: false, stone: false, burning: false };
+}
+
+function stoneTile() {
+  return { type: null, special: null, ice: false, stone: true, burning: false };
 }
 
 function tileVisual(piece) {
+  if (piece?.stone) return OBSTACLE_TYPES.stone;
   return piece.special ? SPECIAL_TYPES[piece.special] : TYPES[piece.type];
 }
 
 function randType() {
-  return Math.floor(Math.random() * TYPES.length);
+  return Math.floor(Math.random() * currentLevel().typeCount);
+}
+
+function typeCountForLevel(levelIndex) {
+  return Math.min(8, 6 + Math.max(0, Math.floor((levelIndex - 20) / 10)));
 }
 
 function key(row, col) {
@@ -140,11 +402,11 @@ function parseKey(id) {
 }
 
 function currentLevel() {
-  return LEVELS[level % LEVELS.length];
+  return buildLevelConfig(level);
 }
 
 function sameType(a, b) {
-  return a && b && a.type === b.type;
+  return a && b && !a.stone && !b.stone && Number.isInteger(a.type) && a.type === b.type;
 }
 
 function randomTileFor(row, col, draft) {
@@ -169,15 +431,45 @@ function randomTileFor(row, col, draft) {
 }
 
 function createBoard() {
-  board = Array.from({ length: SIZE }, () => Array(SIZE).fill(null));
+  let guard = 0;
+  do {
+    board = Array.from({ length: SIZE }, () => Array(SIZE).fill(null));
 
-  for (let row = 0; row < SIZE; row += 1) {
-    for (let col = 0; col < SIZE; col += 1) {
-      board[row][col] = randomTileFor(row, col, board);
+    for (let row = 0; row < SIZE; row += 1) {
+      for (let col = 0; col < SIZE; col += 1) {
+        board[row][col] = randomTileFor(row, col, board);
+      }
     }
+
+    placeInitialObstacles();
+    guard += 1;
+  } while (!findMove() && guard < 20);
+}
+
+function shuffledCells() {
+  return Array.from({ length: SIZE * SIZE }, (_, index) => ({
+    row: Math.floor(index / SIZE),
+    col: index % SIZE,
+  })).sort(() => Math.random() - 0.5);
+}
+
+function placeInitialObstacles() {
+  const config = currentLevel();
+  const cells = shuffledCells();
+
+  for (let i = 0; i < config.initialStones && cells.length; i += 1) {
+    const cell = cells.shift();
+    board[cell.row][cell.col] = stoneTile();
   }
 
-  if (!findMove()) createBoard();
+  let placedIce = 0;
+  for (const cell of cells) {
+    if (placedIce >= config.iceCount) break;
+    const piece = board[cell.row][cell.col];
+    if (!piece || piece.stone) continue;
+    piece.ice = true;
+    placedIce += 1;
+  }
 }
 
 function render(options = {}) {
@@ -196,8 +488,12 @@ function render(options = {}) {
       button.dataset.row = row;
       button.dataset.col = col;
       if (piece.special) button.dataset.special = piece.special;
+      if (piece.stone) button.dataset.obstacle = "stone";
+      if (piece.ice) button.dataset.ice = "true";
+      if (piece.burning) button.dataset.burning = "true";
       const visual = tileVisual(piece);
-      button.setAttribute("aria-label", piece.special ? `${visual.name} 奖励方块` : visual.name);
+      const label = piece.stone ? visual.name : piece.special ? `${visual.name} 奖励方块` : visual.name;
+      button.setAttribute("aria-label", piece.ice ? `${label}，冰块覆盖` : label);
 
       if (selected && selected.row === row && selected.col === col) button.classList.add("selected");
       if (activeTool) button.classList.add("tool-target");
@@ -207,12 +503,12 @@ function render(options = {}) {
         const distance = dropInfo
           ? Math.max(42, dropInfo.rows * 58)
           : staggerDrop
-            ? 170 + row * 18
+            ? 155 + row * 10
             : Math.max(28, (SIZE - row) * 13);
         const delay = dropInfo
           ? dropInfo.delay
           : staggerDrop
-            ? row * 72 + col * 24
+            ? (row * SIZE + col) * 10
             : Math.min(120, row * 18 + col * 5);
         button.style.setProperty("--fall-distance", `${distance}px`);
         button.style.setProperty("--fall-delay", `${delay}ms`);
@@ -222,6 +518,8 @@ function render(options = {}) {
       image.src = visual.src;
       image.alt = "";
       button.append(image);
+      if (piece.ice) button.append(makeOverlay("ice-overlay", OBSTACLE_TYPES.ice.src));
+      if (piece.burning) button.append(makeOverlay("fire-overlay", OBSTACLE_TYPES.fire.src));
       fragment.append(button);
     }
   }
@@ -264,11 +562,12 @@ function renderOrders() {
     item.className = `order${order.got >= order.need ? " done" : ""}`;
 
     const image = document.createElement("img");
-    image.src = TYPES[order.type].src;
+    const visual = order.obstacle ? OBSTACLE_TYPES[order.obstacle] : TYPES[order.type];
+    image.src = visual.src;
     image.alt = "";
 
     const name = document.createElement("span");
-    name.textContent = TYPES[order.type].name;
+    name.textContent = visual.name;
 
     const count = document.createElement("strong");
     count.textContent = `${Math.min(order.got, order.need)}/${order.need}`;
@@ -286,11 +585,29 @@ function updateTile(cell) {
   tileEl.classList.remove("selected", "hint", "clearing", "bad-swap");
   if (piece.special) tileEl.dataset.special = piece.special;
   else delete tileEl.dataset.special;
+  if (piece.stone) tileEl.dataset.obstacle = "stone";
+  else delete tileEl.dataset.obstacle;
+  if (piece.ice) tileEl.dataset.ice = "true";
+  else delete tileEl.dataset.ice;
+  if (piece.burning) tileEl.dataset.burning = "true";
+  else delete tileEl.dataset.burning;
   const visual = tileVisual(piece);
-  tileEl.setAttribute("aria-label", piece.special ? `${visual.name} 奖励方块` : visual.name);
+  const label = piece.stone ? visual.name : piece.special ? `${visual.name} 奖励方块` : visual.name;
+  tileEl.setAttribute("aria-label", piece.ice ? `${label}，冰块覆盖` : label);
 
   const image = tileEl.querySelector("img");
   if (image) image.src = visual.src;
+  tileEl.querySelectorAll(".obstacle-overlay").forEach((item) => item.remove());
+  if (piece.ice) tileEl.append(makeOverlay("ice-overlay", OBSTACLE_TYPES.ice.src));
+  if (piece.burning) tileEl.append(makeOverlay("fire-overlay", OBSTACLE_TYPES.fire.src));
+}
+
+function makeOverlay(className, src) {
+  const image = document.createElement("img");
+  image.className = `obstacle-overlay ${className}`;
+  image.src = src;
+  image.alt = "";
+  return image;
 }
 
 function sleep(ms) {
@@ -311,6 +628,48 @@ function showComboBanner(message) {
   bannerTimer = setTimeout(() => {
     comboBannerEl.hidden = true;
   }, 980);
+}
+
+function pick(list) {
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+function playMascotVoice(text) {
+  if (!soundEnabled) return;
+  const src = MASCOT_VOICES[text];
+  if (!src) return;
+
+  try {
+    mascotVoiceAudio?.pause();
+    mascotVoiceAudio = new Audio(src);
+    mascotVoiceAudio.volume = 0.92;
+    mascotVoiceAudio.play().catch(() => {});
+  } catch {
+    // Voice lines are a bonus layer; bubbles and sound effects still play.
+  }
+}
+
+function cheerMascot(kind) {
+  const line = pick(MASCOT_LINES[kind] || MASCOT_LINES.four);
+  const asset =
+    kind === "combo" || kind === "six"
+      ? MASCOT_ASSETS.legend
+      : kind === "five" || kind === "fire"
+        ? MASCOT_ASSETS.wow
+        : MASCOT_ASSETS.cheer;
+
+  mascotImgEl.src = asset;
+  mascotBubbleEl.textContent = line;
+  mascotEl.classList.remove("cheer");
+  void mascotEl.offsetWidth;
+  mascotEl.classList.add("cheer");
+  playMascotVoice(line);
+  clearTimeout(cheerMascot.timer);
+  cheerMascot.timer = setTimeout(() => {
+    mascotImgEl.src = MASCOT_ASSETS.idle;
+    mascotBubbleEl.textContent = "继续，我在给你烤甜点！";
+    mascotEl.classList.remove("cheer");
+  }, 2600);
 }
 
 function showFloatingScore(amount, cells) {
@@ -353,6 +712,24 @@ function ensureAudio() {
   }
   if (audioContext.state === "suspended") audioContext.resume();
   return audioContext;
+}
+
+function unlockAudio() {
+  const ctx = ensureAudio();
+  if (!ctx || audioUnlocked) return;
+
+  try {
+    const source = ctx.createBufferSource();
+    const gain = ctx.createGain();
+    gain.gain.value = 0.0001;
+    source.buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
+    source.connect(gain);
+    gain.connect(ctx.destination);
+    source.start(0);
+    audioUnlocked = true;
+  } catch {
+    // Audio can still be unlocked by the next real tap in stricter browsers.
+  }
 }
 
 function tone(freq, start, duration, options = {}) {
@@ -474,6 +851,11 @@ function areAdjacent(a, b) {
   return Math.abs(a.row - b.row) + Math.abs(a.col - b.col) === 1;
 }
 
+function canMoveCell(cell) {
+  const piece = board[cell.row]?.[cell.col];
+  return !!piece && !piece.stone;
+}
+
 function swap(a, b) {
   const temp = board[a.row][a.col];
   board[a.row][a.col] = board[b.row][b.col];
@@ -571,6 +953,7 @@ function addSpecialBlast(matches) {
 }
 
 async function markClearing(matches) {
+  if (matches.size === 0) return;
   playSound("clear", Math.min(4, Math.ceil(matches.size / 3)));
   for (const id of matches) {
     const { row, col } = parseKey(id);
@@ -601,9 +984,56 @@ function burst(tileEl) {
 
 function collectOrders(clearedPieces) {
   for (const piece of clearedPieces) {
+    if (piece.stone) continue;
     const order = orders.find((item) => item.type === piece.type);
     if (order) order.got += 1;
   }
+}
+
+function collectObstacle(name, amount = 1) {
+  const order = orders.find((item) => item.obstacle === name);
+  if (order) order.got += amount;
+}
+
+function neighborCells(cell) {
+  return [
+    cell,
+    { row: cell.row - 1, col: cell.col },
+    { row: cell.row + 1, col: cell.col },
+    { row: cell.row, col: cell.col - 1 },
+    { row: cell.row, col: cell.col + 1 },
+  ].filter((next) => next.row >= 0 && next.row < SIZE && next.col >= 0 && next.col < SIZE);
+}
+
+function crackIceNear(matches) {
+  let cracked = 0;
+  const protectedCells = new Set();
+  const candidates = new Set();
+
+  for (const id of matches) {
+    const cell = parseKey(id);
+    for (const next of neighborCells(cell)) candidates.add(key(next.row, next.col));
+  }
+
+  for (const id of candidates) {
+    const cell = parseKey(id);
+    const piece = board[cell.row]?.[cell.col];
+    if (!piece?.ice) continue;
+    piece.ice = false;
+    cracked += 1;
+    protectedCells.add(id);
+    burst(tileElement(cell));
+  }
+
+  for (const id of protectedCells) matches.delete(id);
+  if (cracked > 0) {
+    collectObstacle("ice", cracked);
+    playSound("special");
+    cheerMascot("ice");
+    render();
+  }
+
+  return cracked;
 }
 
 function collapse(matches, specials) {
@@ -611,7 +1041,7 @@ function collapse(matches, specials) {
   const dropMap = new Map();
   for (const id of matches) {
     const { row, col } = parseKey(id);
-    if (board[row][col]) clearedPieces.push(board[row][col]);
+    if (board[row][col] && !board[row][col].stone) clearedPieces.push(board[row][col]);
     board[row][col] = null;
   }
 
@@ -661,6 +1091,7 @@ async function resolveBoard(preferredSpecialCell = null, checkEndAfter = true) {
   combo = 1;
 
   while (groups.length > 0) {
+    const biggestGroup = Math.max(...groups.map((group) => group.cells.length));
     const matched = new Set();
     for (const group of groups) {
       for (const cell of group.cells) matched.add(key(cell.row, cell.col));
@@ -668,7 +1099,17 @@ async function resolveBoard(preferredSpecialCell = null, checkEndAfter = true) {
 
     const specials = collectSpecials(groups, preferredSpecialCell);
     addSpecialBlast(matched);
+    crackIceNear(matched);
+    if (matched.size === 0) {
+      render();
+      groups = getMatchGroups();
+      preferredSpecialCell = null;
+      continue;
+    }
     if (specials.size > 0) playSound("special");
+    if (biggestGroup >= 6) cheerMascot("six");
+    else if (biggestGroup >= 5) cheerMascot("five");
+    else if (biggestGroup >= 4) cheerMascot("four");
     await markClearing(matched);
     clearedTotal += matched.size;
     const gained = matched.size * 70 * combo + specials.size * 180;
@@ -685,7 +1126,10 @@ async function resolveBoard(preferredSpecialCell = null, checkEndAfter = true) {
   combo = Math.max(1, combo - 1);
   render();
 
-  if (combo >= 3) showComboBanner(`${combo} 连甜蜜爆发`);
+  if (combo >= 3) {
+    showComboBanner(`${combo} 连甜蜜爆发`);
+    cheerMascot("combo");
+  }
   if (clearedTotal >= 9) showToast(`大片甜爆 +${clearedTotal}`);
   else if (clearedTotal >= 5) showToast(`甜蜜连消 +${clearedTotal}`);
   if (!findMove()) {
@@ -695,8 +1139,40 @@ async function resolveBoard(preferredSpecialCell = null, checkEndAfter = true) {
   if (checkEndAfter) await checkEnd();
 }
 
+function fireCandidates() {
+  const cells = [];
+  for (let row = 0; row < SIZE; row += 1) {
+    for (let col = 0; col < SIZE; col += 1) {
+      const piece = board[row][col];
+      if (piece && !piece.stone && !piece.ice && !piece.special) cells.push({ row, col });
+    }
+  }
+  return cells;
+}
+
+async function triggerFireStep() {
+  const config = currentLevel();
+  if (!config.fireEvery || turnsTaken === 0 || turnsTaken % config.fireEvery !== 0 || ended) return;
+  const candidates = fireCandidates();
+  if (candidates.length === 0) return;
+
+  const cell = pick(candidates);
+  const piece = board[cell.row][cell.col];
+  if (!piece) return;
+  piece.burning = true;
+  render();
+  cheerMascot("fire");
+  showToast("火焰烧成石头！");
+  playSound("special");
+  await sleep(720);
+  board[cell.row][cell.col] = stoneTile();
+  burst(tileElement(cell));
+  render();
+  await sleep(260);
+}
+
 async function trySwap(a, b) {
-  if (busy || ended || !areAdjacent(a, b) || moves <= 0) return;
+  if (busy || ended || !areAdjacent(a, b) || moves <= 0 || !canMoveCell(a) || !canMoveCell(b)) return;
   busy = true;
   let didMatch = false;
   activeTool = null;
@@ -718,7 +1194,9 @@ async function trySwap(a, b) {
   } else {
     didMatch = true;
     moves -= 1;
+    turnsTaken += 1;
     await resolveBoard(b);
+    await triggerFireStep();
     render();
   }
 
@@ -730,6 +1208,7 @@ function findMove() {
   for (let row = 0; row < SIZE; row += 1) {
     for (let col = 0; col < SIZE; col += 1) {
       const here = { row, col };
+      if (!canMoveCell(here)) continue;
       const candidates = [
         { row: row + 1, col },
         { row, col: col + 1 },
@@ -737,6 +1216,7 @@ function findMove() {
 
       for (const next of candidates) {
         if (next.row >= SIZE || next.col >= SIZE) continue;
+        if (!canMoveCell(next)) continue;
         swap(here, next);
         const works = getMatches().size > 0;
         swap(here, next);
@@ -809,6 +1289,7 @@ function colCells(col) {
 }
 
 function typeCells(type) {
+  if (!Number.isInteger(type)) return [];
   const cells = [];
   for (let row = 0; row < SIZE; row += 1) {
     for (let col = 0; col < SIZE; col += 1) {
@@ -843,6 +1324,14 @@ async function clearCells(cells, message, expandSpecials = true, options = {}) {
   const safeCells = uniqueCells(cells).filter((cell) => board[cell.row]?.[cell.col]);
   const matched = new Set(safeCells.map((cell) => key(cell.row, cell.col)));
   if (expandSpecials) addSpecialBlast(matched);
+  crackIceNear(matched);
+  if (matched.size === 0) {
+    showToast(message);
+    busy = wasBusy;
+    render();
+    if (checkEndAfter) await checkEnd();
+    return;
+  }
   await markClearing(matched);
   const gained = matched.size * 55;
   score += gained;
@@ -877,9 +1366,11 @@ function useHammer(cell) {
 
 function useSpark(cell) {
   if (boosters.spark <= 0) return;
+  const piece = board[cell.row]?.[cell.col];
+  if (!piece || piece.stone) return;
   boosters.spark -= 1;
   activeTool = null;
-  clearCells(typeCells(board[cell.row][cell.col].type), "星爆清屏！");
+  clearCells(typeCells(piece.type), "星爆清屏！");
 }
 
 function useRowBlast(cell) {
@@ -981,6 +1472,7 @@ async function checkEnd() {
     await autoUseBoardRewards();
     ended = true;
     endingSequence = false;
+    saveLevelProgress(level + 1);
     playSound("win");
     openModal("关卡完成", "太甜啦！", `第 ${level + 1} 关完成，下一关会更有挑战。`, "下一关");
   } else if (moves <= 0) {
@@ -1004,11 +1496,12 @@ function closeModal() {
 }
 
 async function startLevel(nextLevel = level) {
-  const config = LEVELS[nextLevel % LEVELS.length];
   level = nextLevel;
+  const config = currentLevel();
   score = 0;
   moves = config.moves;
   combo = 1;
+  turnsTaken = 0;
   orders = config.orders.map((order) => ({ ...order, got: 0 }));
   boosters = {
     hammer: 2 + Math.floor(level / 2),
@@ -1028,7 +1521,7 @@ async function startLevel(nextLevel = level) {
   render({ staggerDrop: true });
   playSound("button");
   showToast(`第 ${level + 1} 关`);
-  await sleep(1250);
+  await sleep(1650);
   busy = false;
   render();
 }
@@ -1081,6 +1574,7 @@ function boardCellFromPoint(x, y) {
 window.boardCellFromPoint = boardCellFromPoint;
 
 function handleTileAction(current) {
+  unlockAudio();
   ensureAudio();
   requestPortraitLock();
   updateOrientationLock();
@@ -1113,6 +1607,7 @@ function handleTileAction(current) {
 
   if (useTileReward(current)) return;
 
+  if (!canMoveCell(current)) return;
   if (moves <= 0) return;
 
   if (!selected) {
@@ -1149,6 +1644,7 @@ function neighborFromDrag(start, dx, dy) {
 }
 
 boardEl.addEventListener("pointerdown", (event) => {
+  unlockAudio();
   requestPortraitLock();
   updateOrientationLock();
   if (isLandscapeLocked) return;
@@ -1189,6 +1685,7 @@ boardEl.addEventListener("pointercancel", () => {
 });
 
 boardEl.addEventListener("click", (event) => {
+  unlockAudio();
   requestPortraitLock();
   updateOrientationLock();
   if (isLandscapeLocked) return;
@@ -1218,7 +1715,11 @@ soundBtn.addEventListener("click", () => {
   if (isLandscapeLocked) return;
   soundEnabled = !soundEnabled;
   setSoundPreference(soundEnabled);
-  if (soundEnabled) playSound("button");
+  if (soundEnabled) {
+    audioUnlocked = false;
+    unlockAudio();
+    playSound("button");
+  }
   render();
   showToast(soundEnabled ? "声音已打开" : "已静音");
 });
@@ -1282,4 +1783,4 @@ nextBtn.addEventListener("click", () => {
   else startLevel(level);
 });
 
-startLevel(0);
+bootGame();
