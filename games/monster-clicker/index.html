@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#10131b" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="副本刷装录" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <title>副本刷装录</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./assets/icon-192.png" type="image/png" />
+    <link rel="apple-touch-icon" href="./assets/icon-192.png" />
+    <link rel="stylesheet" href="./styles.css?v=0.2.56" />
+    <script src="./script.js?v=0.2.56" defer></script>
+  </head>
+  <body>
+    <section class="auth-screen" id="authScreen" aria-label="账号登录">
+      <form class="auth-card" id="authForm">
+        <div class="auth-brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <div>
+            <p class="eyebrow">网页先行版</p>
+            <h1>副本刷装录</h1>
+          </div>
+        </div>
+        <div class="auth-copy">
+          <h2 id="authTitle">登录账号</h2>
+          <p id="authSubtitle">同一台设备上，账号之间会分开保存进度。</p>
+        </div>
+        <label class="field-label">
+          <span>账号</span>
+          <input id="authUsername" name="username" type="text" autocomplete="username" maxlength="18" required />
+        </label>
+        <label class="field-label">
+          <span>密码</span>
+          <input id="authPassword" name="password" type="password" autocomplete="current-password" maxlength="32" required />
+        </label>
+        <p class="auth-message" id="authMessage" role="status"></p>
+        <div class="auth-actions">
+          <button class="primary-button" id="authSubmit" type="submit">登录</button>
+          <button class="ghost-button" id="authSwitch" type="button">创建账号</button>
+        </div>
+      </form>
+    </section>
+
+    <main class="app-shell" id="appShell">
+      <section class="page active" id="battlePage" data-page="battle">
+        <div class="layout-grid battle-grid">
+          <section class="panel fight-panel" aria-label="副本战斗">
+            <details class="dungeon-selector">
+              <summary>
+                <span>选择副本</span>
+                <strong id="dungeonSelectLabel">雾林矿洞</strong>
+              </summary>
+              <div id="dungeonList" class="dungeon-list"></div>
+            </details>
+            <div class="battle-gold-chip" aria-label="金币">
+              <img src="./assets/generated-items/gold.png" alt="" />
+              <strong id="goldLabel">120</strong>
+            </div>
+
+            <div class="fight-top">
+              <div>
+                <p id="dungeonLabel" class="eyebrow">雾林矿洞</p>
+              </div>
+            </div>
+
+            <div class="hp-panel monster-hp-panel battle-monster-hp">
+              <div class="hp-text monster-hp-header">
+                <div class="monster-title-row">
+                  <strong id="monsterName" class="monster-name">苔甲兽</strong>
+                  <span class="monster-hp-values"><span id="hpLabel">80</span>/<span id="maxHpLabel">80</span></span>
+                </div>
+                <div class="monster-meta-line">
+                  <span>等级 Lv.<span id="monsterLevelLabel">1</span></span>
+                  <span>属性 <span id="monsterTypeLabel">小兵</span></span>
+                  <span>攻击 <span id="monsterAttackLabel">0</span></span>
+                </div>
+              </div>
+              <div class="hp-bar" aria-hidden="true"><i id="hpBar"></i></div>
+            </div>
+
+            <div class="battle-stage">
+              <div class="hero-back" id="heroBack" aria-label="主角背影">
+                <span class="hero-head"></span>
+                <span class="hero-body"></span>
+                <span class="hero-weapon"></span>
+              </div>
+              <div class="pet-battle-sprite" id="petBattleSprite" aria-label="出战宠物"></div>
+              <div class="monster-column">
+                <button id="monsterButton" class="monster-button" type="button" aria-labelledby="monsterTitle">
+                  <span id="monsterTitle" class="visually-hidden">怪物</span>
+                  <span id="damageLayer" class="damage-layer" aria-hidden="true"></span>
+                </button>
+              </div>
+              <span id="effectLayer" class="effect-layer" aria-hidden="true"></span>
+              <div id="groundLootLayer" class="ground-loot-layer" aria-label="地面掉落"></div>
+            </div>
+
+            <div class="battle-hp-grid">
+              <div class="hp-panel player-hp-panel">
+                <div class="battle-level-mini">Lv.<span id="battleLevelLabel">1</span></div>
+                <div class="hp-text">
+                  <span>主角生命</span>
+                  <strong><span id="playerHpLabel">100</span>/<span id="playerMaxHpLabel">100</span></strong>
+                </div>
+                <div class="hp-bar player-bar" aria-hidden="true"><i id="playerHpBar"></i></div>
+                <div class="xp-text">
+                  <span>经验</span>
+                  <strong><span id="xpLabel">0</span>/<span id="xpNeedLabel">60</span></strong>
+                </div>
+                <div class="mini-bar player-xp-bar" aria-hidden="true"><i id="xpBar"></i></div>
+              </div>
+              <div class="hp-panel pet-hp-panel">
+                <div class="hp-text">
+                  <span>宠物生命</span>
+                  <strong id="petBattleHpLabel">未出战</strong>
+                </div>
+                <div class="hp-bar pet-bar" aria-hidden="true"><i id="petBattleHpBar"></i></div>
+                <div class="xp-text">
+                  <span>宠物经验</span>
+                  <strong id="petBattleXpLabel">未出战</strong>
+                </div>
+                <div class="mini-bar pet-xp-bar" aria-hidden="true"><i id="petBattleXpBar"></i></div>
+              </div>
+            </div>
+
+            <div class="combat-stats">
+              <div>
+                <span>点击伤害</span>
+                <strong id="damageLabel">12</strong>
+              </div>
+              <div>
+                <span>暴击率</span>
+                <strong id="critLabel">8%</strong>
+              </div>
+              <div>
+                <span>战力</span>
+                <strong id="powerLabel">0</strong>
+              </div>
+              <div>
+                <span>宠物秒伤</span>
+                <strong id="petDpsLabel">0</strong>
+              </div>
+              <div>
+                <span>自动点击</span>
+                <strong id="autoClickLabel">未装备</strong>
+              </div>
+            </div>
+
+            <aside class="log-panel battle-log-panel">
+              <div class="log-heading">
+                <h2>记录</h2>
+              </div>
+              <ol id="battleLog" class="battle-log" aria-live="polite"></ol>
+            </aside>
+          </section>
+        </div>
+      </section>
+
+      <section class="page" id="petsPage" data-page="pets">
+        <section class="panel pet-workspace">
+          <div class="section-heading">
+            <div>
+              <h2>宠物</h2>
+              <p>孵化、出战和合成进化</p>
+            </div>
+          </div>
+          <div id="petSubTabs" class="subtab-bar" role="tablist" aria-label="宠物二级菜单"></div>
+          <div class="pet-subview" data-pet-subview="hatch">
+            <div id="hatchStation" class="hatch-station"></div>
+          </div>
+          <div class="pet-subview" data-pet-subview="pets">
+            <div id="petSummary" class="summary-strip"></div>
+            <div id="petControls" class="equipment-controls"></div>
+            <div id="petList" class="card-grid"></div>
+          </div>
+          <div class="pet-subview" data-pet-subview="fusion">
+            <div id="petFusionSummary" class="summary-strip"></div>
+            <div id="petFusionList" class="card-grid"></div>
+          </div>
+        </section>
+      </section>
+
+      <section class="page" id="equipPage" data-page="equip">
+        <div class="layout-grid two-col wide-left">
+          <section class="panel">
+            <div class="section-heading">
+              <div>
+                <h2>装备</h2>
+                <p>装备有职业、等级、品质和套装搭配</p>
+              </div>
+              <div class="switch-group" role="group" aria-label="职业">
+                <button class="switch-button active" type="button" data-class="warrior">战士</button>
+                <button class="switch-button" type="button" data-class="mage">法师</button>
+              </div>
+            </div>
+            <div id="equippedSlots" class="equipped-layout"></div>
+            <div id="setBonusPanel" class="summary-strip"></div>
+          </section>
+          <section class="panel">
+            <div class="section-heading">
+              <div>
+                <h2>背包装备</h2>
+                <p>按部位、品质、职业和可装备状态筛选，可出售或熔炼</p>
+              </div>
+            </div>
+            <div id="equipmentControls" class="equipment-controls"></div>
+            <div id="equipmentList" class="item-list tall"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="page" id="itemsPage" data-page="items">
+        <div class="layout-grid two-col">
+          <section class="panel">
+            <div class="section-heading">
+              <div>
+                <h2>物品</h2>
+                <p>副本会掉落宝石、分类型材料和宠物蛋</p>
+              </div>
+            </div>
+            <div id="itemSummary" class="inventory-grid"></div>
+          </section>
+          <section class="panel">
+            <div class="section-heading">
+              <div>
+                <h2>锻造</h2>
+                <p>把不要的装备熔炼成材料，再锻造成新装备</p>
+              </div>
+            </div>
+            <div id="forgePanel" class="forge-panel"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="page" id="shopPage" data-page="shop">
+        <section class="panel">
+          <div class="section-heading">
+            <div>
+              <h2>商店</h2>
+              <p>商店随机刷新装备，等级会跟随角色和已解锁副本</p>
+            </div>
+            <button id="refreshShopButton" class="primary-button" type="button">刷新商店 30G</button>
+          </div>
+          <div id="shopList" class="shop-grid"></div>
+        </section>
+      </section>
+
+      <section class="page" id="myPage" data-page="my">
+        <div class="layout-grid two-col">
+          <section class="panel">
+            <div class="brand-block my-brand">
+              <span class="brand-mark" aria-hidden="true"></span>
+              <div>
+                <p class="eyebrow">网页先行版</p>
+                <h1>副本刷装录</h1>
+                <p><span id="classNameLabel">战士</span> · Lv.<span id="levelLabel">1</span>/70</p>
+              </div>
+            </div>
+          </section>
+          <section class="panel account-strip" aria-label="账号">
+            <div>
+              <span>账号</span>
+              <strong id="accountNameLabel">未登录</strong>
+            </div>
+            <div class="account-actions">
+              <a id="adminEntryButton" class="primary-button admin-entry-button" href="./admin" hidden>进入后台</a>
+              <button id="installButton" class="ghost-button" type="button">安装</button>
+              <button id="logoutButton" class="ghost-button" type="button">退出</button>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <nav class="bottom-tabs" aria-label="游戏页签">
+        <button class="tab-button active" type="button" data-tab="battle">
+          <img class="tab-icon" src="./assets/generated-ui/tab-battle.png" alt="" aria-hidden="true" decoding="async" />
+          <span>战场</span>
+        </button>
+        <button class="tab-button" type="button" data-tab="pets">
+          <img class="tab-icon" src="./assets/generated-ui/tab-pets.png" alt="" aria-hidden="true" decoding="async" />
+          <span>宠物</span>
+        </button>
+        <button class="tab-button" type="button" data-tab="equip">
+          <img class="tab-icon" src="./assets/generated-ui/tab-equip.png" alt="" aria-hidden="true" decoding="async" />
+          <span>装备</span>
+        </button>
+        <button class="tab-button" type="button" data-tab="items">
+          <img class="tab-icon" src="./assets/generated-ui/tab-items.png" alt="" aria-hidden="true" decoding="async" />
+          <span>物品</span>
+        </button>
+        <button class="tab-button" type="button" data-tab="shop">
+          <img class="tab-icon" src="./assets/generated-ui/tab-shop.png" alt="" aria-hidden="true" decoding="async" />
+          <span>商店</span>
+        </button>
+        <button class="tab-button" type="button" data-tab="my">
+          <img class="tab-icon" src="./assets/generated-ui/tab-my.png" alt="" aria-hidden="true" decoding="async" />
+          <span>我的</span>
+        </button>
+      </nav>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div class="drop-toast-stack" id="dropToastStack" aria-live="polite" aria-label="掉落提示"></div>
+  </body>
+</html>
