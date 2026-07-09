@@ -1,4 +1,4 @@
-const CACHE_NAME = "tiantian-match3-v4";
+const CACHE_NAME = "tiantian-match3-v5";
 const ASSETS = [
   "./index.html",
   "./styles.css",

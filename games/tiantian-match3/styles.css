@@ -1,5 +1,7 @@
 :root {
   color-scheme: light;
+  --app-width: 100vw;
+  --app-height: 100dvh;
   --ink: #45283c;
   --muted: #8b6178;
   --panel: rgba(255, 255, 255, 0.82);
@@ -24,7 +26,7 @@
 
 html {
   width: 100%;
-  height: 100%;
+  height: var(--app-height);
   min-height: 100svh;
   min-height: 100vh;
   min-height: 100dvh;
@@ -36,7 +38,7 @@ html {
 
 body {
   width: 100%;
-  height: 100%;
+  height: var(--app-height);
   min-height: 100svh;
   min-height: 100vh;
   min-height: 100dvh;
@@ -193,9 +195,19 @@ button:active {
   text-shadow: 0 1px 2px rgba(69, 40, 60, 0.35);
 }
 
+.loader-version {
+  justify-self: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  color: rgba(69, 40, 60, 0.62);
+  font-size: 0.7rem;
+  font-weight: 900;
+  background: rgba(255, 255, 255, 0.62);
+}
+
 .game-shell {
   width: min(1120px, calc(100vw - 20px));
-  max-height: calc(100dvh - 12px - env(safe-area-inset-bottom, 0px));
+  max-height: calc(var(--app-height) - 12px - env(safe-area-inset-bottom, 0px));
   margin: 10px auto;
   overflow: hidden;
   touch-action: none;
@@ -321,6 +333,8 @@ button:active {
     repeating-linear-gradient(45deg, rgba(255, 213, 229, 0.22) 0 9px, transparent 9px 18px);
   box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.88), 0 14px 28px rgba(100, 77, 98, 0.12);
   touch-action: none;
+  transform: translateZ(0);
+  contain: layout paint;
 }
 
 .tile {
@@ -336,7 +350,10 @@ button:active {
   box-shadow: none;
   cursor: pointer;
   touch-action: none;
+  backface-visibility: hidden;
+  transform: translateZ(0);
   transition: transform 140ms ease, box-shadow 140ms ease, opacity 180ms ease, filter 140ms ease;
+  will-change: transform, opacity;
 }
 
 .tile::after {
@@ -355,6 +372,8 @@ button:active {
   filter: drop-shadow(0 5px 5px rgba(86, 53, 71, 0.16));
   pointer-events: none;
   user-select: none;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
 .tile[data-special] img {
@@ -656,6 +675,23 @@ button:active {
   display: none;
 }
 
+.version-badge {
+  position: fixed;
+  right: max(8px, env(safe-area-inset-right, 0px));
+  bottom: max(6px, env(safe-area-inset-bottom, 0px));
+  z-index: 25;
+  padding: 3px 7px;
+  border-radius: 999px;
+  color: rgba(69, 40, 60, 0.62);
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0;
+  background: rgba(255, 255, 255, 0.58);
+  box-shadow: 0 4px 12px rgba(143, 72, 110, 0.12);
+  pointer-events: none;
+  user-select: none;
+}
+
 .orientation-lock {
   position: fixed;
   inset: 0;
@@ -695,6 +731,10 @@ body.landscape-locked .orientation-lock {
 body.landscape-locked .game-shell {
   pointer-events: none;
   filter: blur(4px);
+}
+
+body.landscape-locked .version-badge {
+  display: none;
 }
 
 .modal {
@@ -841,11 +881,9 @@ body.landscape-locked .game-shell {
 
 @keyframes candyFall {
   0% {
-    opacity: 0;
     transform: translateY(calc(-1 * var(--fall-distance, 64px))) scale(0.92, 1.08);
   }
   46% {
-    opacity: 1;
     transform: translateY(0) scale(1.08, 0.9);
   }
   62% {
@@ -858,7 +896,6 @@ body.landscape-locked .game-shell {
     transform: translateY(-4px) scale(0.99, 1.01);
   }
   100% {
-    opacity: 1;
     transform: translateY(0) scale(1);
   }
 }
@@ -962,9 +999,11 @@ body.landscape-locked .game-shell {
 
   .game-shell {
     width: min(100vw - 12px, 430px);
-    max-height: calc(100vh - 12px - env(safe-area-inset-bottom, 0px));
-    max-height: calc(100svh - 12px - env(safe-area-inset-bottom, 0px));
+    height: calc(var(--app-height) - 12px - env(safe-area-inset-bottom, 0px));
+    max-height: calc(var(--app-height) - 12px - env(safe-area-inset-bottom, 0px));
     margin: 6px auto calc(6px + env(safe-area-inset-bottom, 0px));
+    display: flex;
+    flex-direction: column;
   }
 
   .top-panel {
@@ -992,11 +1031,13 @@ body.landscape-locked .game-shell {
   .play-area {
     gap: 6px;
     padding: 6px;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
   }
 
   .board {
-    --cell: min(calc((100vw - 72px) / 8), calc((100vh - 366px - env(safe-area-inset-bottom, 0px)) / 8), 46px);
-    --cell: min(calc((100vw - 72px) / 8), calc((100svh - 366px - env(safe-area-inset-bottom, 0px)) / 8), 46px);
+    --cell: min(calc((100vw - 72px) / 8), calc((var(--app-height) - 342px - env(safe-area-inset-bottom, 0px)) / 8), 46px);
     gap: 4px;
     padding: 6px;
     border-radius: 14px;
@@ -1027,8 +1068,10 @@ body.landscape-locked .game-shell {
     display: grid;
     grid-template-columns: 1fr;
     gap: 6px;
+    align-content: start;
     max-height: none;
     padding: 8px;
+    min-height: 0;
   }
 
   .target-card {
@@ -1080,4 +1123,257 @@ body.landscape-locked .game-shell {
     justify-self: end;
   }
 
+}
+
+@media (max-width: 760px) and (max-height: 700px) {
+  .top-panel {
+    margin-bottom: 4px;
+    padding: 4px;
+  }
+
+  .stats {
+    gap: 4px;
+  }
+
+  .stats div {
+    padding: 3px 3px;
+  }
+
+  .stats span {
+    font-size: 0.58rem;
+  }
+
+  .stats strong {
+    font-size: 0.82rem;
+  }
+
+  .play-area {
+    gap: 4px;
+    padding: 4px;
+  }
+
+  .board {
+    --cell: min(calc((100vw - 72px) / 8), calc((var(--app-height) - 286px - env(safe-area-inset-bottom, 0px)) / 8), 42px);
+    gap: 3px;
+    padding: 5px;
+  }
+
+  .mascot {
+    width: clamp(54px, 17vw, 76px);
+  }
+
+  .mascot-bubble {
+    max-width: 104px;
+    padding: 4px 6px;
+    font-size: 0.58rem;
+  }
+
+  .side-panel {
+    gap: 4px;
+    padding: 5px;
+  }
+
+  .target-card {
+    padding: 5px;
+  }
+
+  .target-head strong {
+    font-size: 0.86rem;
+  }
+
+  .progress-track {
+    height: 6px;
+    margin: 5px 0;
+  }
+
+  .orders {
+    gap: 4px;
+  }
+
+  .order {
+    grid-template-columns: 22px 1fr auto;
+    min-height: 25px;
+    gap: 4px;
+    padding: 2px 4px;
+  }
+
+  .order img {
+    width: 23px;
+    height: 23px;
+  }
+
+  .order span {
+    font-size: 0.58rem;
+  }
+
+  .order strong {
+    font-size: 0.72rem;
+  }
+
+  .controls {
+    gap: 4px;
+  }
+
+  .controls button {
+    min-height: 28px;
+    padding: 0.28rem 0.25rem;
+    font-size: 0.7rem;
+  }
+
+  .boosters {
+    gap: 4px;
+  }
+
+  .booster {
+    grid-template-columns: 28px 1fr auto;
+    min-height: 32px;
+    padding: 3px;
+  }
+
+  .booster img {
+    width: 28px;
+    height: 28px;
+  }
+
+  .booster span {
+    font-size: 0.58rem;
+  }
+
+  .booster strong {
+    font-size: 0.76rem;
+  }
+}
+
+@media (max-width: 760px) and (max-height: 610px) {
+  .game-shell {
+    width: min(100vw - 8px, 430px);
+    height: calc(var(--app-height) - 8px - env(safe-area-inset-bottom, 0px));
+    margin-top: 4px;
+  }
+
+  .board {
+    --cell: min(calc((100vw - 66px) / 8), calc((var(--app-height) - 258px - env(safe-area-inset-bottom, 0px)) / 8), 38px);
+    gap: 2px;
+    padding: 4px;
+  }
+
+  .orders {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .order {
+    grid-template-columns: 20px 1fr;
+  }
+
+  .order strong {
+    display: none;
+  }
+
+  .version-badge {
+    bottom: max(3px, env(safe-area-inset-bottom, 0px));
+    right: 5px;
+    padding: 2px 5px;
+    font-size: 0.58rem;
+  }
+}
+
+@media (max-width: 760px) {
+  body.compact-height .top-panel {
+    margin-bottom: 4px;
+    padding: 4px;
+  }
+
+  body.compact-height .stats {
+    gap: 4px;
+  }
+
+  body.compact-height .stats div {
+    padding: 3px 3px;
+  }
+
+  body.compact-height .stats span {
+    font-size: 0.58rem;
+  }
+
+  body.compact-height .stats strong {
+    font-size: 0.82rem;
+  }
+
+  body.compact-height .play-area {
+    gap: 4px;
+    padding: 4px;
+  }
+
+  body.compact-height .board {
+    --cell: min(calc((100vw - 72px) / 8), calc((var(--app-height) - 286px - env(safe-area-inset-bottom, 0px)) / 8), 42px);
+    gap: 3px;
+    padding: 5px;
+  }
+
+  body.compact-height .side-panel {
+    gap: 4px;
+    padding: 5px;
+  }
+
+  body.compact-height .target-card {
+    padding: 5px;
+  }
+
+  body.compact-height .progress-track {
+    height: 6px;
+    margin: 5px 0;
+  }
+
+  body.compact-height .order {
+    grid-template-columns: 22px 1fr auto;
+    min-height: 25px;
+    gap: 4px;
+    padding: 2px 4px;
+  }
+
+  body.compact-height .order img {
+    width: 23px;
+    height: 23px;
+  }
+
+  body.compact-height .controls button {
+    min-height: 28px;
+    padding: 0.28rem 0.25rem;
+    font-size: 0.7rem;
+  }
+
+  body.compact-height .booster {
+    grid-template-columns: 28px 1fr auto;
+    min-height: 32px;
+    padding: 3px;
+  }
+
+  body.compact-height .booster img {
+    width: 28px;
+    height: 28px;
+  }
+
+  body.tiny-height .game-shell {
+    width: min(100vw - 8px, 430px);
+    height: calc(var(--app-height) - 8px - env(safe-area-inset-bottom, 0px));
+    margin-top: 4px;
+  }
+
+  body.tiny-height .board {
+    --cell: min(calc((100vw - 66px) / 8), calc((var(--app-height) - 258px - env(safe-area-inset-bottom, 0px)) / 8), 38px);
+    gap: 2px;
+    padding: 4px;
+  }
+
+  body.tiny-height .orders {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  body.tiny-height .order {
+    grid-template-columns: 20px 1fr;
+  }
+
+  body.tiny-height .order strong {
+    display: none;
+  }
 }
