@@ -1,4 +1,5 @@
 const SIZE = 8;
+const GAME_VERSION = "v0.9.8";
 const BASE_LEVELS = [
   { targetScore: 3000, moves: 30, orders: [{ type: 0, need: 8 }, { type: 1, need: 8 }] },
   { targetScore: 4800, moves: 28, orders: [{ type: 2, need: 10 }, { type: 5, need: 10 }] },
@@ -112,6 +113,8 @@ const loadingScreenEl = document.querySelector("#loadingScreen");
 const loaderFillEl = document.querySelector("#loaderFill");
 const loaderPercentEl = document.querySelector("#loaderPercent");
 const loadingTextEl = document.querySelector("#loadingText");
+const loaderVersionEl = document.querySelector("#loaderVersion");
+const versionBadgeEl = document.querySelector("#versionBadge");
 const mascotEl = document.querySelector("#mascot");
 const mascotImgEl = document.querySelector("#mascotImg");
 const mascotBubbleEl = document.querySelector("#mascotBubble");
@@ -163,6 +166,16 @@ function updateOrientationLock() {
   orientationLockEl?.setAttribute("aria-hidden", String(!isLandscapeLocked));
 }
 
+function updateViewportMetrics() {
+  const viewport = window.visualViewport;
+  const width = Math.floor(viewport?.width || window.innerWidth || document.documentElement.clientWidth);
+  const height = Math.floor(viewport?.height || window.innerHeight || document.documentElement.clientHeight);
+  document.documentElement.style.setProperty("--app-width", `${width}px`);
+  document.documentElement.style.setProperty("--app-height", `${height}px`);
+  document.body.classList.toggle("compact-height", height < 700 && width <= 760);
+  document.body.classList.toggle("tiny-height", height < 610 && width <= 760);
+}
+
 async function requestPortraitLock() {
   try {
     await screen.orientation?.lock?.("portrait");
@@ -171,9 +184,20 @@ async function requestPortraitLock() {
   }
 }
 
+updateViewportMetrics();
 updateOrientationLock();
-window.addEventListener("resize", updateOrientationLock);
-window.addEventListener("orientationchange", updateOrientationLock);
+if (versionBadgeEl) versionBadgeEl.textContent = GAME_VERSION;
+if (loaderVersionEl) loaderVersionEl.textContent = GAME_VERSION;
+window.addEventListener("resize", () => {
+  updateViewportMetrics();
+  updateOrientationLock();
+});
+window.visualViewport?.addEventListener("resize", updateViewportMetrics);
+window.visualViewport?.addEventListener("scroll", updateViewportMetrics);
+window.addEventListener("orientationchange", () => {
+  updateViewportMetrics();
+  updateOrientationLock();
+});
 
 function preloadImage(src) {
   return new Promise((resolve) => {
@@ -219,15 +243,35 @@ async function preloadWithProgress(items, loader, start, end, text) {
   }
 
   let done = 0;
-  const results = await Promise.all(
-    items.map(async (item) => {
-      const result = await loader(item);
-      done += 1;
-      updateLoadingProgress(start + (done / items.length) * (end - start), text);
-      return result;
+  const results = [];
+  const queue = [...items];
+  const workerCount = Math.min(4, items.length);
+  await Promise.all(
+    Array.from({ length: workerCount }, async () => {
+      while (queue.length > 0) {
+        const item = queue.shift();
+        const result = await loader(item);
+        results.push(result);
+        done += 1;
+        updateLoadingProgress(start + (done / items.length) * (end - start), text);
+      }
     })
   );
+
   return results;
+}
+
+async function preloadWithoutProgress(items, loader) {
+  const queue = [...items];
+  const workerCount = Math.min(4, items.length);
+  await Promise.all(
+    Array.from({ length: workerCount }, async () => {
+      while (queue.length > 0) {
+        const item = queue.shift();
+        await loader(item);
+      }
+    })
+  );
 }
 
 async function finishLoadingScreen() {
@@ -251,7 +295,7 @@ async function preloadRequiredImages() {
     const stillMissing = secondPass.filter((item) => !item.ok);
     if (stillMissing.length > 0) showToast("部分素材稍后补上");
   }
-  preloadWithProgress(REQUIRED_AUDIO_ASSETS, preloadAudio, 0.9, 0.98, "正在准备卡皮巴拉声音").catch(() => {});
+  preloadWithoutProgress(REQUIRED_AUDIO_ASSETS, preloadAudio).catch(() => {});
   updateLoadingProgress(0.98, "甜点马上出炉");
   await sleep(260);
 }
@@ -472,59 +516,99 @@ function placeInitialObstacles() {
   }
 }
 
-function render(options = {}) {
-  const animateDrop = options.animateDrop === true;
-  const staggerDrop = options.staggerDrop === true;
-  const dropMap = options.dropMap || null;
-  const fragment = document.createDocumentFragment();
-  boardEl.innerHTML = "";
+function ensureBoardTiles() {
+  const existing = boardEl.querySelectorAll(":scope > .tile");
+  if (existing.length === SIZE * SIZE) return existing;
 
+  boardEl.innerHTML = "";
+  const fragment = document.createDocumentFragment();
   for (let row = 0; row < SIZE; row += 1) {
     for (let col = 0; col < SIZE; col += 1) {
-      const piece = board[row][col];
       const button = document.createElement("button");
       button.className = "tile";
       button.type = "button";
-      button.dataset.row = row;
-      button.dataset.col = col;
-      if (piece.special) button.dataset.special = piece.special;
-      if (piece.stone) button.dataset.obstacle = "stone";
-      if (piece.ice) button.dataset.ice = "true";
-      if (piece.burning) button.dataset.burning = "true";
-      const visual = tileVisual(piece);
-      const label = piece.stone ? visual.name : piece.special ? `${visual.name} 奖励方块` : visual.name;
-      button.setAttribute("aria-label", piece.ice ? `${label}，冰块覆盖` : label);
-
-      if (selected && selected.row === row && selected.col === col) button.classList.add("selected");
-      if (activeTool) button.classList.add("tool-target");
-      const dropInfo = dropMap?.get(key(row, col));
-      if (dropInfo || animateDrop || staggerDrop) {
-        button.classList.add("falling");
-        const distance = dropInfo
-          ? Math.max(42, dropInfo.rows * 58)
-          : staggerDrop
-            ? 155 + row * 10
-            : Math.max(28, (SIZE - row) * 13);
-        const delay = dropInfo
-          ? dropInfo.delay
-          : staggerDrop
-            ? (row * SIZE + col) * 10
-            : Math.min(120, row * 18 + col * 5);
-        button.style.setProperty("--fall-distance", `${distance}px`);
-        button.style.setProperty("--fall-delay", `${delay}ms`);
-      }
-
       const image = document.createElement("img");
-      image.src = visual.src;
+      image.className = "tile-art";
       image.alt = "";
       button.append(image);
-      if (piece.ice) button.append(makeOverlay("ice-overlay", OBSTACLE_TYPES.ice.src));
-      if (piece.burning) button.append(makeOverlay("fire-overlay", OBSTACLE_TYPES.fire.src));
       fragment.append(button);
     }
   }
-
   boardEl.append(fragment);
+  return boardEl.querySelectorAll(":scope > .tile");
+}
+
+function applyTileState(button, row, col, options = {}) {
+  const piece = board[row][col];
+  if (!piece) return;
+
+  button.className = "tile";
+  button.dataset.row = row;
+  button.dataset.col = col;
+  delete button.dataset.special;
+  delete button.dataset.obstacle;
+  delete button.dataset.ice;
+  delete button.dataset.burning;
+  button.style.removeProperty("--fall-distance");
+  button.style.removeProperty("--fall-delay");
+
+  if (piece.special) button.dataset.special = piece.special;
+  if (piece.stone) button.dataset.obstacle = "stone";
+  if (piece.ice) button.dataset.ice = "true";
+  if (piece.burning) button.dataset.burning = "true";
+
+  const visual = tileVisual(piece);
+  const label = piece.stone ? visual.name : piece.special ? `${visual.name} 奖励方块` : visual.name;
+  button.setAttribute("aria-label", piece.ice ? `${label}，冰块覆盖` : label);
+
+  if (selected && selected.row === row && selected.col === col) button.classList.add("selected");
+  if (activeTool) button.classList.add("tool-target");
+
+  const dropInfo = options.dropMap?.get(key(row, col));
+  if (dropInfo || options.animateDrop || options.staggerDrop) {
+    button.classList.add("falling");
+    const distance = dropInfo
+      ? Math.max(42, dropInfo.rows * 58)
+      : options.staggerDrop
+        ? 155 + row * 10
+        : Math.max(28, (SIZE - row) * 13);
+    const delay = dropInfo
+      ? dropInfo.delay
+      : options.staggerDrop
+        ? (row * SIZE + col) * 10
+        : Math.min(120, row * 18 + col * 5);
+    button.style.setProperty("--fall-distance", `${distance}px`);
+    button.style.setProperty("--fall-delay", `${delay}ms`);
+  }
+
+  let image = button.querySelector(".tile-art");
+  if (!image) {
+    image = document.createElement("img");
+    image.className = "tile-art";
+    image.alt = "";
+    button.prepend(image);
+  }
+  if (image.getAttribute("src") !== visual.src) image.src = visual.src;
+
+  button.querySelectorAll(".obstacle-overlay").forEach((item) => item.remove());
+  if (piece.ice) button.append(makeOverlay("ice-overlay", OBSTACLE_TYPES.ice.src));
+  if (piece.burning) button.append(makeOverlay("fire-overlay", OBSTACLE_TYPES.fire.src));
+}
+
+function render(options = {}) {
+  const renderOptions = {
+    animateDrop: options.animateDrop === true,
+    staggerDrop: options.staggerDrop === true,
+    dropMap: options.dropMap || null,
+  };
+  const tiles = ensureBoardTiles();
+
+  for (let row = 0; row < SIZE; row += 1) {
+    for (let col = 0; col < SIZE; col += 1) {
+      applyTileState(tiles[row * SIZE + col], row, col, renderOptions);
+    }
+  }
+
   levelEl.textContent = `${level + 1}`;
   scoreEl.textContent = score.toString();
   movesEl.textContent = moves.toString();
@@ -579,27 +663,8 @@ function renderOrders() {
 
 function updateTile(cell) {
   const tileEl = tileElement(cell);
-  const piece = board[cell.row][cell.col];
-  if (!tileEl || !piece) return;
-
-  tileEl.classList.remove("selected", "hint", "clearing", "bad-swap");
-  if (piece.special) tileEl.dataset.special = piece.special;
-  else delete tileEl.dataset.special;
-  if (piece.stone) tileEl.dataset.obstacle = "stone";
-  else delete tileEl.dataset.obstacle;
-  if (piece.ice) tileEl.dataset.ice = "true";
-  else delete tileEl.dataset.ice;
-  if (piece.burning) tileEl.dataset.burning = "true";
-  else delete tileEl.dataset.burning;
-  const visual = tileVisual(piece);
-  const label = piece.stone ? visual.name : piece.special ? `${visual.name} 奖励方块` : visual.name;
-  tileEl.setAttribute("aria-label", piece.ice ? `${label}，冰块覆盖` : label);
-
-  const image = tileEl.querySelector("img");
-  if (image) image.src = visual.src;
-  tileEl.querySelectorAll(".obstacle-overlay").forEach((item) => item.remove());
-  if (piece.ice) tileEl.append(makeOverlay("ice-overlay", OBSTACLE_TYPES.ice.src));
-  if (piece.burning) tileEl.append(makeOverlay("fire-overlay", OBSTACLE_TYPES.fire.src));
+  if (!tileEl) return;
+  applyTileState(tileEl, cell.row, cell.col);
 }
 
 function makeOverlay(className, src) {
