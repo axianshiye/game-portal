@@ -1,20 +1,104 @@
 const SIZE = 8;
-const GAME_VERSION = "v0.9.8";
-const BASE_LEVELS = [
-  { targetScore: 3000, moves: 30, orders: [{ type: 0, need: 8 }, { type: 1, need: 8 }] },
-  { targetScore: 4800, moves: 28, orders: [{ type: 2, need: 10 }, { type: 5, need: 10 }] },
-  { targetScore: 6800, moves: 26, orders: [{ type: 3, need: 12 }, { type: 4, need: 12 }, { type: 1, need: 8 }] },
-];
+const GAME_VERSION = "v0.11.0";
+const MAX_LEVELS = 500;
+const LEVEL_WAVE = [0.92, 0.98, 1.04, 1.08, 1, 0.95, 1.02, 1.06, 0.97, 1.1];
 const TYPES = [
-  { name: "草莓糖", src: "assets/pieces/strawberry.png" },
-  { name: "星星冻", src: "assets/pieces/star.png" },
-  { name: "薄荷糖", src: "assets/pieces/wrapped-candy.png" },
-  { name: "马卡龙", src: "assets/pieces/macaron.png" },
-  { name: "布丁杯", src: "assets/pieces/pudding.png" },
-  { name: "花朵饼", src: "assets/pieces/flower-cookie.png" },
-  { name: "蓝莓冻", src: "assets/pieces/blueberry-jelly.png" },
-  { name: "彩虹糖", src: "assets/pieces/rainbow-swirl.png" },
+  { name: "奶油马卡龙", src: "assets/foods/cream_macaron.png" },
+  { name: "布丁杯", src: "assets/foods/pudding_cup.png" },
+  { name: "星星冻", src: "assets/foods/star_jelly.png" },
+  { name: "花朵饼", src: "assets/foods/flower_cookie_v2.png" },
+  { name: "包包糖", src: "assets/foods/wrapped_candy.png" },
+  { name: "苹果", src: "assets/foods/apple.png" },
+  { name: "香蕉", src: "assets/foods/banana.png" },
+  { name: "葡萄", src: "assets/foods/grape.png" },
+  { name: "吐司", src: "assets/foods/toast.png" },
+  { name: "牛奶杯", src: "assets/foods/milk_cup.png" },
+  { name: "胡萝卜", src: "assets/foods/carrot.png" },
+  { name: "番茄", src: "assets/foods/tomato.png" },
+  { name: "玉米", src: "assets/foods/corn.png" },
+  { name: "虾球", src: "assets/foods/shrimp_ball.png" },
+  { name: "饭团", src: "assets/foods/rice_ball.png" },
+  { name: "章鱼烧", src: "assets/foods/takoyaki.png" },
+  { name: "饺子", src: "assets/foods/dumpling.png" },
+  { name: "蘑菇", src: "assets/foods/mushroom.png" },
+  { name: "蜂蜜面包", src: "assets/foods/honey_bread.png" },
+  { name: "热可可", src: "assets/foods/cocoa_mug.png" },
+  { name: "奶酪", src: "assets/foods/cheese.png" },
+  { name: "芒果", src: "assets/foods/mango.png" },
+  { name: "刨冰", src: "assets/foods/shaved_ice.png" },
+  { name: "栗子派", src: "assets/foods/chestnut_pie.png" },
+  { name: "派对蛋糕", src: "assets/foods/party_cake.png" },
 ];
+const FOOD_THEMES = [
+  { name: "奶油甜品", indexes: [0, 1, 2, 3, 4] },
+  { name: "水果拼盘", indexes: [5, 6, 7, 21, 22] },
+  { name: "早餐小铺", indexes: [8, 9, 18, 20, 1] },
+  { name: "蔬菜花园", indexes: [10, 11, 12, 16, 17] },
+  { name: "海边夜市", indexes: [13, 14, 15, 16, 19] },
+  { name: "派对厨房", indexes: [20, 21, 22, 23, 24] },
+];
+const PETS = {
+  capybara: {
+    name: "卡皮巴拉",
+    price: 0,
+    appetite: 60,
+    maxSatiety: 120,
+    skill: "hammer",
+    skillName: "糖锤",
+    skillCost: 96,
+    idle: "assets/pets/capybara-idle.png",
+    eat: "assets/pets/capybara-eat.png",
+  },
+  puppy: {
+    name: "小奶狗",
+    price: 800,
+    appetite: 72,
+    maxSatiety: 120,
+    skill: "crossBlast",
+    skillName: "寻宝十字",
+    skillCost: 102,
+    idle: "assets/pets/puppy-idle.png",
+    eat: "assets/pets/puppy-eat.png",
+  },
+  calf: {
+    name: "小奶牛",
+    price: 1800,
+    appetite: 90,
+    maxSatiety: 135,
+    skill: "colBlast",
+    skillName: "奶香竖扫",
+    skillCost: 108,
+    idle: "assets/pets/calf-idle.png",
+    eat: "assets/pets/calf-eat.png",
+  },
+  piglet: {
+    name: "小猪",
+    price: 3600,
+    appetite: 84,
+    maxSatiety: 130,
+    skill: "rowBlast",
+    skillName: "大口横扫",
+    skillCost: 104,
+    idle: "assets/pets/piglet-idle.png",
+    eat: "assets/pets/piglet-eat.png",
+  },
+  parrot: {
+    name: "小鹦鹉",
+    price: 6200,
+    appetite: 54,
+    maxSatiety: 110,
+    skill: "spark",
+    skillName: "鹦鹉星爆",
+    skillCost: 92,
+    idle: "assets/pets/parrot-idle.png",
+    eat: "assets/pets/parrot-eat.png",
+  },
+};
+const PET_ORDER = ["capybara", "puppy", "calf", "piglet", "parrot"];
+const SKILL_TO_PET = Object.fromEntries(PET_ORDER.map((id) => [PETS[id].skill, id]));
+const PLAYER_KEY = "sweet-match-pet-save";
+const FOOD_SATIETY = 1;
+const BASE_FRESH_MINUTES = 70;
 const SPECIAL_TYPES = {
   row: { name: "糖锤", src: "assets/boosters/hammer.png" },
   col: { name: "糖锤", src: "assets/boosters/hammer.png" },
@@ -34,6 +118,7 @@ const OBSTACLE_TYPES = {
   stone: { name: "石头", src: "assets/obstacles/stone.png" },
 };
 const OBSTACLE_ASSETS = Object.values(OBSTACLE_TYPES).map((item) => item.src);
+const BASKET_ASSETS = Array.from({ length: 6 }, (_, index) => `assets/baskets/basket-${index}.png`);
 const MASCOT_ASSETS = {
   idle: "assets/mascot/idle.png",
   cheer: "assets/mascot/cheer.png",
@@ -49,29 +134,40 @@ const MASCOT_LINES = {
   fire: ["小心火焰，把糖烧成石头了！", "火焰来捣乱啦！"],
 };
 const MASCOT_VOICES = {
-  "太厉害了！": "assets/voices/four-01.mp3",
-  "这个四消很漂亮！": "assets/voices/four-02.mp3",
-  "甜度拉满啦！": "assets/voices/four-03.mp3",
-  "好手感！": "assets/voices/four-04.mp3",
-  "天啊，真厉害！": "assets/voices/five-05.mp3",
-  "哇！": "assets/voices/five-06.mp3",
-  "这一下太会了！": "assets/voices/five-07.mp3",
-  "星星都亮起来了！": "assets/voices/five-08.mp3",
-  "太崇拜你了！": "assets/voices/six-09.mp3",
-  "牛啊！": "assets/voices/six-10.mp3",
-  "这也太强了！": "assets/voices/six-11.mp3",
-  "厨师帽都要飞起来啦！": "assets/voices/six-12.mp3",
-  "你真的是神啊！": "assets/voices/combo-13.mp3",
-  "无人能敌！": "assets/voices/combo-14.mp3",
-  "连起来了，太猛了！": "assets/voices/combo-15.mp3",
-  "这一波甜到发光！": "assets/voices/combo-16.mp3",
-  "冰块被敲开啦！": "assets/voices/ice-17.mp3",
-  "解冻成功！": "assets/voices/ice-18.mp3",
-  "小心火焰，把糖烧成石头了！": "assets/voices/fire-19.mp3",
-  "火焰来捣乱啦！": "assets/voices/fire-20.mp3",
+  "太厉害了！": voiceFile("four-01.mp3"),
+  "这个四消很漂亮！": voiceFile("four-02.mp3"),
+  "甜度拉满啦！": voiceFile("four-03.mp3"),
+  "好手感！": voiceFile("four-04.mp3"),
+  "天啊，真厉害！": voiceFile("five-05.mp3"),
+  "哇！": voiceFile("five-06.mp3"),
+  "这一下太会了！": voiceFile("five-07.mp3"),
+  "星星都亮起来了！": voiceFile("five-08.mp3"),
+  "太崇拜你了！": voiceFile("six-09.mp3"),
+  "牛啊！": voiceFile("six-10.mp3"),
+  "这也太强了！": voiceFile("six-11.mp3"),
+  "厨师帽都要飞起来啦！": voiceFile("six-12.mp3"),
+  "你真的是神啊！": voiceFile("combo-13.mp3"),
+  "无人能敌！": voiceFile("combo-14.mp3"),
+  "连起来了，太猛了！": voiceFile("combo-15.mp3"),
+  "这一波甜到发光！": voiceFile("combo-16.mp3"),
+  "冰块被敲开啦！": voiceFile("ice-17.mp3"),
+  "解冻成功！": voiceFile("ice-18.mp3"),
+  "小心火焰，把糖烧成石头了！": voiceFile("fire-19.mp3"),
+  "火焰来捣乱啦！": voiceFile("fire-20.mp3"),
 };
+
+function voiceFile(file) {
+  return `assets/voices/${file}?v=${GAME_VERSION}`;
+}
 const REQUIRED_IMAGE_ASSETS = [
-  ...new Set([...TYPES.map((item) => item.src), ...BOOSTER_ASSETS, ...OBSTACLE_ASSETS, ...Object.values(MASCOT_ASSETS)]),
+  ...new Set([
+    ...TYPES.map((item) => item.src),
+    ...BOOSTER_ASSETS,
+    ...OBSTACLE_ASSETS,
+    ...BASKET_ASSETS,
+    ...Object.values(MASCOT_ASSETS),
+    ...PET_ORDER.flatMap((id) => [PETS[id].idle, PETS[id].eat]),
+  ]),
 ];
 const REQUIRED_AUDIO_ASSETS = Object.values(MASCOT_VOICES);
 const PROGRESS_KEY = "sweet-match-current-level";
@@ -115,9 +211,35 @@ const loaderPercentEl = document.querySelector("#loaderPercent");
 const loadingTextEl = document.querySelector("#loadingText");
 const loaderVersionEl = document.querySelector("#loaderVersion");
 const versionBadgeEl = document.querySelector("#versionBadge");
+const homeViewEl = document.querySelector("#homeView");
+const gameViewEl = document.querySelector("#gameView");
+const readyPanelEl = document.querySelector("#readyPanel");
+const startGameBtn = document.querySelector("#startGameBtn");
+const exitGameBtn = document.querySelector("#exitGameBtn");
+const homeLevelEl = document.querySelector("#homeLevel");
+const homeCoinsEl = document.querySelector("#homeCoins");
+const readyPetImgEl = document.querySelector("#readyPetImg");
+const readyPetNameEl = document.querySelector("#readyPetName");
+const readyLevelTextEl = document.querySelector("#readyLevelText");
+const homeBasketImgEl = document.querySelector("#homeBasketImg");
 const mascotEl = document.querySelector("#mascot");
-const mascotImgEl = document.querySelector("#mascotImg");
 const mascotBubbleEl = document.querySelector("#mascotBubble");
+const activePetImgEl = document.querySelector("#activePetImg");
+const activePetNameEl = document.querySelector("#activePetName");
+const petSatietyTextEl = document.querySelector("#petSatietyText");
+const petSatietyFillEl = document.querySelector("#petSatietyFill");
+const basketTextEl = document.querySelector("#basketText");
+const basketImgEl = document.querySelector("#basketImg");
+const freshnessTextEl = document.querySelector("#freshnessText");
+const petShopEl = document.querySelector("#petShop");
+const shopPanelEl = document.querySelector("#shopPanel");
+const profilePanelEl = document.querySelector("#profilePanel");
+const coinTextShopEl = document.querySelector("#coinTextShop");
+const coinTextProfileEl = document.querySelector("#coinTextProfile");
+const playerNameInputEl = document.querySelector("#playerNameInput");
+const saveProfileBtn = document.querySelector("#saveProfileBtn");
+const profileStatsEl = document.querySelector("#profileStats");
+const tabButtons = document.querySelectorAll(".tab-btn");
 
 document.addEventListener(
   "touchmove",
@@ -155,6 +277,10 @@ let touchStart = null;
 let suppressNextClick = false;
 let isLandscapeLocked = false;
 let turnsTaken = 0;
+let activeTab = "game";
+let gameStarted = false;
+let player = loadPlayer();
+applyOfflineFeeding();
 
 function isPhoneLandscape() {
   return window.matchMedia("(orientation: landscape) and (max-height: 760px)").matches;
@@ -170,10 +296,15 @@ function updateViewportMetrics() {
   const viewport = window.visualViewport;
   const width = Math.floor(viewport?.width || window.innerWidth || document.documentElement.clientWidth);
   const height = Math.floor(viewport?.height || window.innerHeight || document.documentElement.clientHeight);
+  const offsetTop = Math.max(0, Math.floor(viewport?.offsetTop || 0));
+  const layoutHeight = Math.max(420, height - offsetTop);
   document.documentElement.style.setProperty("--app-width", `${width}px`);
   document.documentElement.style.setProperty("--app-height", `${height}px`);
-  document.body.classList.toggle("compact-height", height < 700 && width <= 760);
-  document.body.classList.toggle("tiny-height", height < 610 && width <= 760);
+  document.documentElement.style.setProperty("--layout-height", `${layoutHeight}px`);
+  document.documentElement.style.setProperty("--viewport-top", `${offsetTop}px`);
+  document.body.classList.toggle("compact-height", layoutHeight < 760 && width <= 760);
+  document.body.classList.toggle("squeezed-height", layoutHeight < 690 && width <= 760);
+  document.body.classList.toggle("tiny-height", layoutHeight < 620 && width <= 760);
 }
 
 async function requestPortraitLock() {
@@ -305,7 +436,9 @@ async function bootGame() {
   registerServiceWorker();
   enableBackNavigationGuard();
   await preloadRequiredImages();
-  await startLevel(getSavedLevel());
+  level = getSavedLevel();
+  busy = false;
+  renderHomeHub();
   await finishLoadingScreen();
 }
 
@@ -325,19 +458,288 @@ function setSoundPreference(enabled) {
   }
 }
 
+function defaultPlayer() {
+  return {
+    name: "甜甜玩家",
+    coins: 0,
+    unlockedPets: ["capybara"],
+    activePet: "capybara",
+    pets: {
+      capybara: { level: 1, satiety: 0 },
+    },
+    basket: {
+      amount: 0,
+      capacity: 63,
+      freshnessMinutes: BASE_FRESH_MINUTES,
+      freshUntil: Date.now() + BASE_FRESH_MINUTES * 60000,
+      warmSlots: 0,
+    },
+    inventory: {
+      ice: 0,
+      flame: 0,
+      warmStone: 0,
+    },
+    highestLevel: 0,
+    lastSeenAt: Date.now(),
+  };
+}
+
+function loadPlayer() {
+  try {
+    const saved = JSON.parse(window.localStorage?.getItem(PLAYER_KEY) || "null");
+    const base = defaultPlayer();
+    if (!saved || typeof saved !== "object") return base;
+    const merged = {
+      ...base,
+      ...saved,
+      pets: { ...base.pets, ...(saved.pets || {}) },
+      basket: { ...base.basket, ...(saved.basket || {}) },
+      inventory: { ...base.inventory, ...(saved.inventory || {}) },
+    };
+    for (const id of merged.unlockedPets) {
+      if (!merged.pets[id]) merged.pets[id] = { level: 1, satiety: 0 };
+    }
+    return merged;
+  } catch {
+    return defaultPlayer();
+  }
+}
+
+function savePlayer() {
+  player.lastSeenAt = Date.now();
+  player.basket.capacity = basketCapacity();
+  try {
+    window.localStorage?.setItem(PLAYER_KEY, JSON.stringify(player));
+  } catch {
+    // Local play can continue even if storage is unavailable.
+  }
+}
+
+function ownedPets() {
+  return player.unlockedPets.filter((id) => PETS[id]);
+}
+
+function totalAppetitePerHour() {
+  return ownedPets().reduce((sum, id) => sum + PETS[id].appetite, 0);
+}
+
+function basketCapacity() {
+  return Math.max(63, Math.ceil(totalAppetitePerHour() * 1.05) + (player.basket.warmSlots || 0) * 18);
+}
+
+function activePetId() {
+  return PETS[player.activePet] ? player.activePet : "capybara";
+}
+
+function activePetState() {
+  const id = activePetId();
+  if (!player.pets[id]) player.pets[id] = { level: 1, satiety: 0 };
+  return player.pets[id];
+}
+
+function activePet() {
+  return PETS[activePetId()];
+}
+
+function applyOfflineFeeding() {
+  const now = Date.now();
+  const elapsedHours = Math.max(0, (now - (player.lastSeenAt || now)) / 3600000);
+  if (elapsedHours <= 0) return;
+  const appetite = totalAppetitePerHour();
+  const staleFactor = now > (player.basket.freshUntil || 0) ? 0.5 : 1;
+  const consumed = Math.min(player.basket.amount || 0, appetite * elapsedHours);
+  player.basket.amount = Math.max(0, (player.basket.amount || 0) - consumed);
+  const petIds = ownedPets();
+  for (const id of petIds) {
+    const pet = PETS[id];
+    const state = player.pets[id] || { level: 1, satiety: 0 };
+    const share = pet.appetite / Math.max(1, appetite);
+    state.satiety = Math.min(pet.maxSatiety, state.satiety + consumed * share * staleFactor);
+    player.pets[id] = state;
+  }
+  player.lastSeenAt = now;
+  player.basket.capacity = basketCapacity();
+  savePlayer();
+}
+
+function applyFoodToPet(value = FOOD_SATIETY) {
+  const pet = activePet();
+  const state = activePetState();
+  const room = Math.max(0, pet.maxSatiety - state.satiety);
+  const eaten = Math.min(room, value);
+  state.satiety += eaten;
+  const overflow = value - eaten;
+  if (overflow > 0) addFoodToBasket(overflow);
+  player.pets[activePetId()] = state;
+  savePlayer();
+}
+
+function addFoodToBasket(value) {
+  const capacity = basketCapacity();
+  const flavorBonus = 1 + Math.min(0.5, (player.inventory.flame || 0) * 0.03);
+  const preserveBonus = Math.min(110, (player.inventory.ice || 0) * 18);
+  const warmBonus = Math.min(60, (player.basket.warmSlots || 0) * 12);
+  const gained = value * flavorBonus;
+  player.basket.amount = Math.min(capacity, (player.basket.amount || 0) + gained);
+  player.basket.capacity = capacity;
+  player.basket.freshnessMinutes = BASE_FRESH_MINUTES + preserveBonus + warmBonus;
+  player.basket.freshUntil = Date.now() + player.basket.freshnessMinutes * 60000;
+}
+
+function grantObstacleItem(name, amount = 1) {
+  if (name === "ice") {
+    player.inventory.ice += amount;
+    showToast(`冰块保鲜 +${amount}`);
+  } else if (name === "fire") {
+    player.inventory.flame += amount;
+    showToast(`火焰口感 +${amount}`);
+  } else if (name === "stone") {
+    player.inventory.warmStone += amount;
+    player.basket.warmSlots += amount;
+    showToast(`暖胃石 +${amount}`);
+  }
+  savePlayer();
+}
+
+function spendPetSatiety(skill) {
+  const petId = SKILL_TO_PET[skill];
+  const pet = PETS[petId];
+  if (!pet || !player.unlockedPets.includes(petId)) {
+    showToast("先在商店解锁这只宠物");
+    return false;
+  }
+  const state = player.pets[petId] || { level: 1, satiety: 0 };
+  const cost = Math.max(72, pet.skillCost - (state.level - 1) * 4);
+  if (state.satiety < cost) {
+    showToast(`${pet.name}还没吃饱`);
+    return false;
+  }
+  state.satiety -= cost;
+  player.pets[petId] = state;
+  player.activePet = petId;
+  savePlayer();
+  return true;
+}
+
+function petSkillReady(skill) {
+  const petId = SKILL_TO_PET[skill];
+  const pet = PETS[petId];
+  const state = player.pets[petId];
+  if (!pet || !state || !player.unlockedPets.includes(petId)) return false;
+  return state.satiety >= Math.max(72, pet.skillCost - (state.level - 1) * 4);
+}
+
+function skillLabel(skill) {
+  const petId = SKILL_TO_PET[skill];
+  const pet = PETS[petId];
+  if (!pet) return "";
+  const state = player.pets[petId] || { level: 1, satiety: 0 };
+  const cost = Math.max(72, pet.skillCost - (state.level - 1) * 4);
+  if (!player.unlockedPets.includes(petId)) return `未解锁`;
+  return `${Math.floor(state.satiety)}/${cost}`;
+}
+
+function gainCoins(amount, reason = "过关奖励") {
+  player.coins += amount;
+  showToast(`${reason} +${amount} 金币`);
+  savePlayer();
+}
+
+function buyPet(id) {
+  const pet = PETS[id];
+  if (!pet || player.unlockedPets.includes(id)) {
+    player.activePet = id;
+    savePlayer();
+    renderHomeHub();
+    return;
+  }
+  if (player.coins < pet.price) {
+    showToast("金币不够");
+    return;
+  }
+  player.coins -= pet.price;
+  player.unlockedPets.push(id);
+  player.pets[id] = { level: 1, satiety: 0 };
+  player.activePet = id;
+  player.basket.capacity = basketCapacity();
+  savePlayer();
+  renderHomeHub();
+  showToast(`${pet.name}加入厨房！`);
+}
+
+function switchTab(tabName) {
+  activeTab = tabName;
+  readyPanelEl.hidden = tabName !== "game";
+  shopPanelEl.hidden = tabName !== "shop";
+  profilePanelEl.hidden = tabName !== "profile";
+  tabButtons.forEach((button) => button.classList.toggle("active", button.dataset.tab === tabName));
+  renderHomeHub();
+}
+
+function basketAsset() {
+  const capacity = Math.max(1, player.basket.capacity || basketCapacity());
+  const ratio = Math.max(0, Math.min(1, (player.basket.amount || 0) / capacity));
+  const index = ratio <= 0 ? 0 : Math.min(5, Math.ceil(ratio * 5));
+  return BASKET_ASSETS[index];
+}
+
+function renderHomeHub() {
+  const pet = activePet();
+  const basketSrc = basketAsset();
+  homeLevelEl.textContent = `${getSavedLevel() + 1}`;
+  homeCoinsEl.textContent = `${player.coins}`;
+  readyPetImgEl.src = pet.idle;
+  readyPetNameEl.textContent = pet.name;
+  readyLevelTextEl.textContent = gameStarted ? `继续挑战第 ${level + 1} 关` : `准备挑战第 ${getSavedLevel() + 1} 关`;
+  startGameBtn.textContent = gameStarted ? "继续游戏" : "开始游戏";
+  homeBasketImgEl.src = basketSrc;
+  renderPetHud();
+  renderShop();
+  renderProfile();
+}
+
+async function enterGame() {
+  requestPortraitLock();
+  updateOrientationLock();
+  if (isLandscapeLocked) return;
+  homeViewEl.hidden = true;
+  gameViewEl.hidden = false;
+  playSound("button");
+  if (!gameStarted) {
+    gameStarted = true;
+    await startLevel(getSavedLevel());
+  } else {
+    render();
+  }
+}
+
+function exitGame() {
+  activeTool = null;
+  selected = null;
+  closeModal();
+  gameViewEl.hidden = true;
+  homeViewEl.hidden = false;
+  switchTab("game");
+  playSound("button");
+}
+
 function getSavedLevel() {
   try {
     const saved = Number.parseInt(window.localStorage?.getItem(PROGRESS_KEY) || "0", 10);
-    return Number.isFinite(saved) && saved >= 0 ? saved : 0;
+    const localLevel = Number.isFinite(saved) && saved >= 0 ? saved : 0;
+    return Math.min(MAX_LEVELS - 1, Math.max(localLevel, player.highestLevel || 0));
   } catch {
-    return 0;
+    return Math.min(MAX_LEVELS - 1, player.highestLevel || 0);
   }
 }
 
 function saveLevelProgress(nextLevel) {
   try {
     const saved = getSavedLevel();
-    window.localStorage?.setItem(PROGRESS_KEY, String(Math.max(saved, nextLevel)));
+    const capped = Math.min(MAX_LEVELS - 1, Math.max(saved, nextLevel));
+    player.highestLevel = Math.max(player.highestLevel || 0, capped);
+    savePlayer();
+    window.localStorage?.setItem(PROGRESS_KEY, String(capped));
   } catch {
     // Progress still advances for the current session when storage is unavailable.
   }
@@ -346,7 +748,16 @@ function saveLevelProgress(nextLevel) {
 function registerServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
   if (!window.isSecureContext && location.hostname !== "localhost" && location.hostname !== "127.0.0.1") return;
-  navigator.serviceWorker.register("sw.js").catch(() => {});
+  navigator.serviceWorker
+    .register("sw.js")
+    .then((registration) => registration.update())
+    .catch(() => {});
+  let refreshed = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (refreshed) return;
+    refreshed = true;
+    window.location.reload();
+  });
 }
 
 function enableBackNavigationGuard() {
@@ -383,32 +794,37 @@ function levelNumber() {
 }
 
 function buildLevelConfig(levelIndex) {
-  const base = BASE_LEVELS[levelIndex % BASE_LEVELS.length];
-  const cycle = Math.floor(levelIndex / BASE_LEVELS.length);
-  const shownLevel = levelIndex + 1;
-  const typeCount = typeCountForLevel(levelIndex);
+  const cappedLevel = Math.min(MAX_LEVELS - 1, levelIndex);
+  const shownLevel = cappedLevel + 1;
+  const segment = Math.floor(cappedLevel / 20);
+  const wave = LEVEL_WAVE[cappedLevel % LEVEL_WAVE.length];
+  const typeIndexes = foodPoolForLevel(cappedLevel);
+  const orderA = typeIndexes[cappedLevel % typeIndexes.length];
+  const orderB = typeIndexes[(cappedLevel + 2) % typeIndexes.length];
   const config = {
-    targetScore: base.targetScore + cycle * 850,
-    moves: Math.max(20, base.moves - Math.floor(levelIndex / 5)),
-    orders: base.orders.map((order) => ({ ...order, need: order.need + Math.floor(levelIndex / 4) })),
-    typeCount,
+    targetScore: Math.round((2600 + segment * 170 + (shownLevel % 20) * 18) * wave),
+    moves: Math.max(24, 31 - Math.floor(cappedLevel / 80) - (shownLevel % 10 === 0 ? 1 : 0)),
+    orders: [
+      { type: orderA, need: Math.round(7 + segment * 0.25 + wave * 3) },
+      { type: orderB, need: Math.round(7 + segment * 0.25 + wave * 3) },
+    ],
+    typeCount: typeIndexes.length,
+    typeIndexes,
+    themeName: FOOD_THEMES[Math.floor(cappedLevel / 20) % FOOD_THEMES.length].name,
     iceCount: 0,
     initialStones: 0,
     fireEvery: 0,
   };
 
-  if (typeCount >= 7) config.orders.push({ type: 6, need: 8 + Math.floor((shownLevel - 31) / 4) });
-  if (typeCount >= 8) config.orders.push({ type: 7, need: 8 + Math.floor((shownLevel - 41) / 4) });
-
-  if (shownLevel >= 10 && shownLevel <= 20) {
-    config.iceCount = Math.min(18, 6 + Math.floor((shownLevel - 10) * 1.2));
+  if (shownLevel >= 10) {
+    config.iceCount = Math.min(12, 2 + Math.floor(shownLevel / 45));
     config.orders.push({ obstacle: "ice", need: config.iceCount });
-    config.moves += 3;
+    config.moves += shownLevel % 5 === 1 ? 2 : 1;
   }
 
-  if (shownLevel >= 20 && shownLevel <= 30) {
-    config.initialStones = Math.min(6, 2 + Math.floor((shownLevel - 20) / 3));
-    config.fireEvery = Math.max(2, 4 - Math.floor((shownLevel - 20) / 5));
+  if (shownLevel >= 20) {
+    config.initialStones = shownLevel % 5 === 1 ? 1 : Math.min(5, 1 + Math.floor(shownLevel / 95));
+    config.fireEvery = shownLevel % 5 === 1 ? 0 : Math.max(4, 7 - Math.floor(shownLevel / 140));
     config.moves += 2;
   }
 
@@ -429,11 +845,22 @@ function tileVisual(piece) {
 }
 
 function randType() {
-  return Math.floor(Math.random() * currentLevel().typeCount);
+  const pool = currentLevel().typeIndexes;
+  return pool[Math.floor(Math.random() * pool.length)];
 }
 
 function typeCountForLevel(levelIndex) {
   return Math.min(8, 6 + Math.max(0, Math.floor((levelIndex - 20) / 10)));
+}
+
+function foodPoolForLevel(levelIndex) {
+  const theme = FOOD_THEMES[Math.floor(levelIndex / 20) % FOOD_THEMES.length];
+  const pool = [...theme.indexes];
+  const extraCount = Math.min(3, Math.floor(levelIndex / 60));
+  for (let i = 0; i < extraCount; i += 1) {
+    pool.push((theme.indexes[0] + 5 + i + Math.floor(levelIndex / 40)) % TYPES.length);
+  }
+  return [...new Set(pool)].slice(0, 8);
 }
 
 function key(row, col) {
@@ -613,30 +1040,88 @@ function render(options = {}) {
   scoreEl.textContent = score.toString();
   movesEl.textContent = moves.toString();
   comboEl.textContent = `x${combo}`;
-  targetScoreEl.textContent = currentLevel().targetScore.toString();
+  targetScoreEl.textContent = `${currentLevel().themeName} ${currentLevel().targetScore}`;
   progressFillEl.style.width = `${Math.min(100, Math.round((score / currentLevel().targetScore) * 100))}%`;
-  hammerCountEl.textContent = boosters.hammer.toString();
-  sparkCountEl.textContent = boosters.spark.toString();
-  rowBlastCountEl.textContent = boosters.rowBlast.toString();
-  colBlastCountEl.textContent = boosters.colBlast.toString();
-  crossBlastCountEl.textContent = boosters.crossBlast.toString();
-  addMovesCountEl.textContent = boosters.addMoves.toString();
+  hammerCountEl.textContent = skillLabel("hammer");
+  sparkCountEl.textContent = skillLabel("spark");
+  rowBlastCountEl.textContent = skillLabel("rowBlast");
+  colBlastCountEl.textContent = skillLabel("colBlast");
+  crossBlastCountEl.textContent = skillLabel("crossBlast");
+  addMovesCountEl.textContent = "免费";
   hammerBtn.classList.toggle("active", activeTool === "hammer");
   sparkBtn.classList.toggle("active", activeTool === "spark");
   rowBlastBtn.classList.toggle("active", activeTool === "rowBlast");
   colBlastBtn.classList.toggle("active", activeTool === "colBlast");
   crossBlastBtn.classList.toggle("active", activeTool === "crossBlast");
-  hammerBtn.disabled = boosters.hammer <= 0 || busy || ended;
-  sparkBtn.disabled = boosters.spark <= 0 || busy || ended;
-  rowBlastBtn.disabled = boosters.rowBlast <= 0 || busy || ended;
-  colBlastBtn.disabled = boosters.colBlast <= 0 || busy || ended;
-  crossBlastBtn.disabled = boosters.crossBlast <= 0 || busy || ended;
+  hammerBtn.disabled = !petSkillReady("hammer") || busy || ended;
+  sparkBtn.disabled = !petSkillReady("spark") || busy || ended;
+  rowBlastBtn.disabled = !petSkillReady("rowBlast") || busy || ended;
+  colBlastBtn.disabled = !petSkillReady("colBlast") || busy || ended;
+  crossBlastBtn.disabled = !petSkillReady("crossBlast") || busy || ended;
   addMovesBtn.disabled = boosters.addMoves <= 0 || busy || ended;
   hintBtn.disabled = busy || ended;
   shuffleBtn.disabled = busy || ended || moves <= 0;
   soundBtn.setAttribute("aria-pressed", String(soundEnabled));
   soundIconEl.textContent = soundEnabled ? "声音开" : "静音";
+  renderPetHud();
+  renderShop();
+  renderProfile();
   renderOrders();
+}
+
+function renderPetHud() {
+  const pet = activePet();
+  const state = activePetState();
+  const basket = player.basket;
+  activePetImgEl.src = pet.idle;
+  activePetNameEl.textContent = pet.name;
+  petSatietyTextEl.textContent = `${Math.floor(state.satiety)}/${pet.maxSatiety}`;
+  petSatietyFillEl.style.width = `${Math.min(100, Math.round((state.satiety / pet.maxSatiety) * 100))}%`;
+  basket.capacity = basketCapacity();
+  basketTextEl.textContent = `${Math.floor(basket.amount || 0)}/${basket.capacity}`;
+  const basketSrc = basketAsset();
+  basketImgEl.src = basketSrc;
+  homeBasketImgEl.src = basketSrc;
+  const left = Math.max(0, Math.round(((basket.freshUntil || 0) - Date.now()) / 60000));
+  freshnessTextEl.textContent = left > 0 ? `保鲜 ${left} 分钟` : "不新鲜";
+  coinTextShopEl.textContent = `金币 ${player.coins}`;
+  coinTextProfileEl.textContent = `金币 ${player.coins}`;
+}
+
+function renderShop() {
+  petShopEl.innerHTML = "";
+  for (const id of PET_ORDER) {
+    const pet = PETS[id];
+    const owned = player.unlockedPets.includes(id);
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = `pet-card${owned ? " owned" : ""}`;
+    card.dataset.pet = id;
+    card.innerHTML = `
+      <img src="${pet.idle}" alt="" />
+      <span>
+        <strong>${pet.name}</strong>
+        <span>${pet.skillName} · ${pet.appetite}/小时</span>
+        <small>${owned ? (player.activePet === id ? "当前出战" : "点击出战") : `${pet.price} 金币解锁`}</small>
+      </span>
+    `;
+    card.addEventListener("click", () => buyPet(id));
+    petShopEl.append(card);
+  }
+}
+
+function renderProfile() {
+  playerNameInputEl.value = player.name;
+  profileStatsEl.innerHTML = `
+    <div><span>账号</span><strong>${player.name}</strong></div>
+    <div><span>最高关卡</span><strong>${Math.max(1, (player.highestLevel || 0) + 1)}</strong></div>
+    <div><span>拥有宠物</span><strong>${ownedPets().length}/5</strong></div>
+    <div><span>篮子容量</span><strong>${basketCapacity()}</strong></div>
+    <div><span>冰块</span><strong>${player.inventory.ice}</strong></div>
+    <div><span>火焰</span><strong>${player.inventory.flame}</strong></div>
+    <div><span>暖胃石</span><strong>${player.inventory.warmStone}</strong></div>
+    <div><span>云同步</span><strong>待接入</strong></div>
+  `;
 }
 
 function renderOrders() {
@@ -716,14 +1201,7 @@ function playMascotVoice(text) {
 
 function cheerMascot(kind) {
   const line = pick(MASCOT_LINES[kind] || MASCOT_LINES.four);
-  const asset =
-    kind === "combo" || kind === "six"
-      ? MASCOT_ASSETS.legend
-      : kind === "five" || kind === "fire"
-        ? MASCOT_ASSETS.wow
-        : MASCOT_ASSETS.cheer;
-
-  mascotImgEl.src = asset;
+  activePetImgEl.src = activePet().eat;
   mascotBubbleEl.textContent = line;
   mascotEl.classList.remove("cheer");
   void mascotEl.offsetWidth;
@@ -731,7 +1209,7 @@ function cheerMascot(kind) {
   playMascotVoice(line);
   clearTimeout(cheerMascot.timer);
   cheerMascot.timer = setTimeout(() => {
-    mascotImgEl.src = MASCOT_ASSETS.idle;
+    activePetImgEl.src = activePet().idle;
     mascotBubbleEl.textContent = "继续，我在给你烤甜点！";
     mascotEl.classList.remove("cheer");
   }, 2600);
@@ -1029,6 +1507,50 @@ async function markClearing(matches) {
   await sleep(230);
 }
 
+function collectFoodFromMatches(matches) {
+  let collected = 0;
+  for (const id of matches) {
+    const { row, col } = parseKey(id);
+    const piece = board[row]?.[col];
+    if (!piece || piece.stone || piece.type === null) continue;
+    const tileEl = tileElement({ row, col });
+    animateFoodToPet(tileEl, piece);
+    applyFoodToPet(FOOD_SATIETY);
+    collected += 1;
+  }
+  if (collected > 0) {
+    const img = activePetImgEl;
+    img.src = activePet().eat;
+    img.classList.remove("eating");
+    void img.offsetWidth;
+    img.classList.add("eating");
+    window.setTimeout(() => {
+      img.src = activePet().idle;
+      img.classList.remove("eating");
+    }, 620);
+  }
+}
+
+function animateFoodToPet(tileEl, piece) {
+  if (!tileEl || !activePetImgEl) return;
+  const img = tileEl.querySelector("img");
+  if (!img) return;
+  const start = img.getBoundingClientRect();
+  const end = activePetImgEl.getBoundingClientRect();
+  const flyer = document.createElement("img");
+  flyer.className = "food-flyer";
+  flyer.src = tileVisual(piece).src;
+  flyer.alt = "";
+  flyer.style.left = `${start.left + start.width / 2 - 17}px`;
+  flyer.style.top = `${start.top + start.height / 2 - 17}px`;
+  document.body.append(flyer);
+  requestAnimationFrame(() => {
+    flyer.style.transform = `translate(${end.left + end.width / 2 - start.left - start.width / 2}px, ${end.top + end.height / 2 - start.top - start.height / 2}px) scale(0.35)`;
+    flyer.style.opacity = "0.25";
+  });
+  window.setTimeout(() => flyer.remove(), 620);
+}
+
 function burst(tileEl) {
   if (!tileEl) return;
   const rect = tileEl.getBoundingClientRect();
@@ -1058,6 +1580,7 @@ function collectOrders(clearedPieces) {
 function collectObstacle(name, amount = 1) {
   const order = orders.find((item) => item.obstacle === name);
   if (order) order.got += amount;
+  grantObstacleItem(name, amount);
 }
 
 function neighborCells(cell) {
@@ -1106,7 +1629,8 @@ function collapse(matches, specials) {
   const dropMap = new Map();
   for (const id of matches) {
     const { row, col } = parseKey(id);
-    if (board[row][col] && !board[row][col].stone) clearedPieces.push(board[row][col]);
+    if (board[row][col]?.stone) collectObstacle("stone", 1);
+    else if (board[row][col]) clearedPieces.push(board[row][col]);
     board[row][col] = null;
   }
 
@@ -1175,6 +1699,7 @@ async function resolveBoard(preferredSpecialCell = null, checkEndAfter = true) {
     if (biggestGroup >= 6) cheerMascot("six");
     else if (biggestGroup >= 5) cheerMascot("five");
     else if (biggestGroup >= 4) cheerMascot("four");
+    collectFoodFromMatches(matched);
     await markClearing(matched);
     clearedTotal += matched.size;
     const gained = matched.size * 70 * combo + specials.size * 180;
@@ -1228,6 +1753,7 @@ async function triggerFireStep() {
   render();
   cheerMascot("fire");
   showToast("火焰烧成石头！");
+  grantObstacleItem("fire", 1);
   playSound("special");
   await sleep(720);
   board[cell.row][cell.col] = stoneTile();
@@ -1397,6 +1923,7 @@ async function clearCells(cells, message, expandSpecials = true, options = {}) {
     if (checkEndAfter) await checkEnd();
     return;
   }
+  collectFoodFromMatches(matched);
   await markClearing(matched);
   const gained = matched.size * 55;
   score += gained;
@@ -1423,38 +1950,33 @@ async function spotlightBoardReward(cell, message) {
 }
 
 function useHammer(cell) {
-  if (boosters.hammer <= 0) return;
-  boosters.hammer -= 1;
+  if (!spendPetSatiety("hammer")) return;
   activeTool = null;
   clearCells(hammerCells(cell), "糖锤敲碎！");
 }
 
 function useSpark(cell) {
-  if (boosters.spark <= 0) return;
   const piece = board[cell.row]?.[cell.col];
   if (!piece || piece.stone) return;
-  boosters.spark -= 1;
+  if (!spendPetSatiety("spark")) return;
   activeTool = null;
   clearCells(typeCells(piece.type), "星爆清屏！");
 }
 
 function useRowBlast(cell) {
-  if (boosters.rowBlast <= 0) return;
-  boosters.rowBlast -= 1;
+  if (!spendPetSatiety("rowBlast")) return;
   activeTool = null;
   clearCells(rowCells(cell.row), "横扫一排！");
 }
 
 function useColBlast(cell) {
-  if (boosters.colBlast <= 0) return;
-  boosters.colBlast -= 1;
+  if (!spendPetSatiety("colBlast")) return;
   activeTool = null;
   clearCells(colCells(cell.col), "竖扫一列！");
 }
 
 function useCrossBlast(cell) {
-  if (boosters.crossBlast <= 0) return;
-  boosters.crossBlast -= 1;
+  if (!spendPetSatiety("crossBlast")) return;
   activeTool = null;
   clearCells(crossCells(cell), "十字甜爆！");
 }
@@ -1488,6 +2010,14 @@ function useTileReward(cell) {
 
 function hasWon() {
   return score >= currentLevel().targetScore && orders.every((order) => order.got >= order.need);
+}
+
+function levelCoinReward() {
+  return Math.floor(35 + (level + 1) * 1.5);
+}
+
+function chestChance() {
+  return Math.min(0.14, 0.06 + Math.floor((level + 1) / 20) * 0.005);
 }
 
 function findBoardReward() {
@@ -1538,8 +2068,16 @@ async function checkEnd() {
     ended = true;
     endingSequence = false;
     saveLevelProgress(level + 1);
+    const baseCoins = levelCoinReward();
+    let rewardText = `过关金币 +${baseCoins}`;
+    gainCoins(baseCoins, "过关奖励");
+    if (Math.random() < chestChance()) {
+      const chestCoins = baseCoins * (6 + Math.floor(Math.random() * 7));
+      gainCoins(chestCoins, "宝箱奖励");
+      rewardText += `，宝箱 +${chestCoins}`;
+    }
     playSound("win");
-    openModal("关卡完成", "太甜啦！", `第 ${level + 1} 关完成，下一关会更有挑战。`, "下一关");
+    openModal("关卡完成", "宠物吃饱啦！", `第 ${level + 1} 关完成，${rewardText}。`, "下一关");
   } else if (moves <= 0) {
     ended = true;
     playSound("lose");
@@ -1569,7 +2107,7 @@ async function startLevel(nextLevel = level) {
   turnsTaken = 0;
   orders = config.orders.map((order) => ({ ...order, got: 0 }));
   boosters = {
-    hammer: 2 + Math.floor(level / 2),
+    hammer: 1,
     spark: 1,
     rowBlast: 1,
     colBlast: 1,
@@ -1792,6 +2330,11 @@ hammerBtn.addEventListener("click", () => {
   requestPortraitLock();
   updateOrientationLock();
   if (isLandscapeLocked) return;
+  if (!petSkillReady("hammer")) {
+    spendPetSatiety("hammer");
+    render();
+    return;
+  }
   playSound("button");
   activeTool = activeTool === "hammer" ? null : "hammer";
   selected = null;
@@ -1802,6 +2345,11 @@ sparkBtn.addEventListener("click", () => {
   requestPortraitLock();
   updateOrientationLock();
   if (isLandscapeLocked) return;
+  if (!petSkillReady("spark")) {
+    spendPetSatiety("spark");
+    render();
+    return;
+  }
   playSound("button");
   activeTool = activeTool === "spark" ? null : "spark";
   selected = null;
@@ -1812,6 +2360,11 @@ rowBlastBtn.addEventListener("click", () => {
   requestPortraitLock();
   updateOrientationLock();
   if (isLandscapeLocked) return;
+  if (!petSkillReady("rowBlast")) {
+    spendPetSatiety("rowBlast");
+    render();
+    return;
+  }
   playSound("button");
   activeTool = activeTool === "rowBlast" ? null : "rowBlast";
   selected = null;
@@ -1822,6 +2375,11 @@ colBlastBtn.addEventListener("click", () => {
   requestPortraitLock();
   updateOrientationLock();
   if (isLandscapeLocked) return;
+  if (!petSkillReady("colBlast")) {
+    spendPetSatiety("colBlast");
+    render();
+    return;
+  }
   playSound("button");
   activeTool = activeTool === "colBlast" ? null : "colBlast";
   selected = null;
@@ -1832,6 +2390,11 @@ crossBlastBtn.addEventListener("click", () => {
   requestPortraitLock();
   updateOrientationLock();
   if (isLandscapeLocked) return;
+  if (!petSkillReady("crossBlast")) {
+    spendPetSatiety("crossBlast");
+    render();
+    return;
+  }
   playSound("button");
   activeTool = activeTool === "crossBlast" ? null : "crossBlast";
   selected = null;
@@ -1846,6 +2409,21 @@ nextBtn.addEventListener("click", () => {
   playSound("button");
   if (hasWon()) startLevel(level + 1);
   else startLevel(level);
+});
+
+tabButtons.forEach((button) => {
+  button.addEventListener("click", () => switchTab(button.dataset.tab));
+});
+
+startGameBtn.addEventListener("click", enterGame);
+exitGameBtn.addEventListener("click", exitGame);
+
+saveProfileBtn.addEventListener("click", () => {
+  const nextName = playerNameInputEl.value.trim() || "甜甜玩家";
+  player.name = nextName.slice(0, 16);
+  savePlayer();
+  renderHomeHub();
+  showToast("账号已保存");
 });
 
 bootGame();
