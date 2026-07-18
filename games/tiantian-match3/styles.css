@@ -2438,3 +2438,17 @@ body.landscape-locked .version-badge {
     width: min(34%, 140px);
   }
 }
+
+/* v0.12.2: candies sit directly on the play surface without an inset board. */
+.game-view .board {
+  padding: 0;
+  overflow: visible;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  contain: layout;
+}
+
+.game-view .tile {
+  overflow: visible;
+}

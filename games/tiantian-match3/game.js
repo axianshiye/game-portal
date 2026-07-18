@@ -1,5 +1,5 @@
 const SIZE = 8;
-const GAME_VERSION = "v0.12.1";
+const GAME_VERSION = "v0.12.2";
 const MAX_LEVELS = 500;
 const LEVEL_WAVE = [0.92, 0.98, 1.04, 1.08, 1, 0.95, 1.02, 1.06, 0.97, 1.1];
 const TYPES = [
@@ -143,32 +143,6 @@ const MASCOT_LINES = {
   ice: ["冰块被敲开啦！", "解冻成功！"],
   fire: ["小心火焰，把糖烧成石头了！", "火焰来捣乱啦！"],
 };
-const MASCOT_VOICES = {
-  "太厉害了！": voiceFile("four-01.mp3"),
-  "这个四消很漂亮！": voiceFile("four-02.mp3"),
-  "甜度拉满啦！": voiceFile("four-03.mp3"),
-  "好手感！": voiceFile("four-04.mp3"),
-  "天啊，真厉害！": voiceFile("five-05.mp3"),
-  "哇！": voiceFile("five-06.mp3"),
-  "这一下太会了！": voiceFile("five-07.mp3"),
-  "星星都亮起来了！": voiceFile("five-08.mp3"),
-  "太崇拜你了！": voiceFile("six-09.mp3"),
-  "牛啊！": voiceFile("six-10.mp3"),
-  "这也太强了！": voiceFile("six-11.mp3"),
-  "厨师帽都要飞起来啦！": voiceFile("six-12.mp3"),
-  "你真的是神啊！": voiceFile("combo-13.mp3"),
-  "无人能敌！": voiceFile("combo-14.mp3"),
-  "连起来了，太猛了！": voiceFile("combo-15.mp3"),
-  "这一波甜到发光！": voiceFile("combo-16.mp3"),
-  "冰块被敲开啦！": voiceFile("ice-17.mp3"),
-  "解冻成功！": voiceFile("ice-18.mp3"),
-  "小心火焰，把糖烧成石头了！": voiceFile("fire-19.mp3"),
-  "火焰来捣乱啦！": voiceFile("fire-20.mp3"),
-};
-
-function voiceFile(file) {
-  return `assets/voices/${file}?v=${GAME_VERSION}`;
-}
 const REQUIRED_IMAGE_ASSETS = [
   ...new Set([
     ...TYPES.map((item) => item.src),
@@ -179,7 +153,6 @@ const REQUIRED_IMAGE_ASSETS = [
     ...PET_ORDER.flatMap((id) => [PETS[id].idle, PETS[id].eat]),
   ]),
 ];
-const REQUIRED_AUDIO_ASSETS = Object.values(MASCOT_VOICES);
 const PROGRESS_KEY = "sweet-match-current-level";
 
 const boardEl = document.querySelector("#board");
@@ -282,7 +255,6 @@ let bannerTimer = null;
 let audioContext = null;
 let soundEnabled = getSoundPreference();
 let audioUnlocked = false;
-let mascotVoiceAudio = null;
 let dragStart = null;
 let touchStart = null;
 let suppressNextClick = false;
@@ -360,18 +332,6 @@ function preloadImage(src) {
   });
 }
 
-function preloadAudio(src) {
-  return new Promise((resolve) => {
-    const audio = new Audio();
-    audio.preload = "auto";
-    audio.oncanplaythrough = () => resolve({ src, ok: true });
-    audio.onerror = () => resolve({ src, ok: false });
-    audio.src = src;
-    audio.load();
-    setTimeout(() => resolve({ src, ok: true }), 1800);
-  });
-}
-
 function updateLoadingProgress(progress, text = null) {
   const clamped = Math.max(0, Math.min(1, progress));
   document.documentElement.style.setProperty("--loader-progress", clamped.toFixed(3));
@@ -441,7 +401,6 @@ async function preloadRequiredImages() {
     const stillMissing = secondPass.filter((item) => !item.ok);
     if (stillMissing.length > 0) showToast("部分素材稍后补上");
   }
-  preloadWithoutProgress(REQUIRED_AUDIO_ASSETS, preloadAudio).catch(() => {});
   updateLoadingProgress(0.98, "甜点马上出炉");
   await sleep(260);
 }
@@ -1233,21 +1192,6 @@ function pick(list) {
   return list[Math.floor(Math.random() * list.length)];
 }
 
-function playMascotVoice(text) {
-  if (!soundEnabled) return;
-  const src = MASCOT_VOICES[text];
-  if (!src) return;
-
-  try {
-    mascotVoiceAudio?.pause();
-    mascotVoiceAudio = new Audio(src);
-    mascotVoiceAudio.volume = 0.92;
-    mascotVoiceAudio.play().catch(() => {});
-  } catch {
-    // Voice lines are a bonus layer; bubbles and sound effects still play.
-  }
-}
-
 function cheerMascot(kind) {
   const line = pick(MASCOT_LINES[kind] || MASCOT_LINES.four);
   activePetImgEl.src = activePet().eat;
@@ -1255,7 +1199,6 @@ function cheerMascot(kind) {
   mascotEl.classList.remove("cheer");
   void mascotEl.offsetWidth;
   mascotEl.classList.add("cheer");
-  playMascotVoice(line);
   clearTimeout(cheerMascot.timer);
   cheerMascot.timer = setTimeout(() => {
     activePetImgEl.src = activePet().idle;
