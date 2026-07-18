@@ -728,27 +728,6 @@ button:active {
   transform: translate(-50%, -50%) scale(1);
 }
 
-.combo-banner {
-  position: fixed;
-  left: 50%;
-  top: 22px;
-  z-index: 18;
-  padding: 12px 18px;
-  border-radius: 999px;
-  color: #fff;
-  font-size: 1.08rem;
-  font-weight: 900;
-  background: linear-gradient(135deg, #ff6fa9, #69d7cf);
-  box-shadow: 0 16px 30px rgba(143, 72, 110, 0.22);
-  transform: translateX(-50%);
-  animation: bannerDrop 980ms ease forwards;
-  pointer-events: none;
-}
-
-.combo-banner[hidden] {
-  display: none;
-}
-
 .version-badge {
   position: fixed;
   right: max(8px, env(safe-area-inset-right, 0px));
@@ -1838,7 +1817,7 @@ body.landscape-locked .version-badge {
 }
 
 .game-companion .pet-stage {
-  grid-template-columns: 58px minmax(86px, 1fr) minmax(120px, auto);
+  grid-template-columns: 58px minmax(86px, 1fr);
   gap: 8px;
   padding: 4px 8px 4px 4px;
 }
@@ -1850,14 +1829,6 @@ body.landscape-locked .version-badge {
 
 .pet-meter {
   min-width: 0;
-}
-
-.game-companion .mascot-bubble {
-  align-self: center;
-  max-width: 210px;
-  margin: 0;
-  padding: 5px 8px;
-  font-size: 0.68rem;
 }
 
 .game-companion .basket-mini {
@@ -1929,7 +1900,7 @@ body.landscape-locked .version-badge {
   }
 
   .game-companion .pet-stage {
-    grid-template-columns: 44px minmax(70px, 1fr) minmax(82px, auto);
+    grid-template-columns: 44px minmax(70px, 1fr);
     gap: 4px;
     padding: 2px 5px 2px 2px;
   }
@@ -1941,12 +1912,6 @@ body.landscape-locked .version-badge {
 
   .game-companion .pet-stage strong {
     font-size: 0.65rem;
-  }
-
-  .game-companion .mascot-bubble {
-    max-width: 112px;
-    padding: 3px 5px;
-    font-size: 0.54rem;
   }
 
   .game-companion .basket-mini {
@@ -1969,10 +1934,6 @@ body.landscape-locked .version-badge {
 }
 
 @media (max-width: 390px), (max-height: 700px) {
-  .game-companion .mascot-bubble {
-    display: none;
-  }
-
   .game-companion .pet-stage {
     grid-template-columns: 42px 1fr;
   }
@@ -2498,4 +2459,85 @@ body.landscape-locked .version-badge {
 
 .pet-xp-track i {
   background: linear-gradient(90deg, #59d6b2, #79bfff);
+}
+
+/* v0.14: generated transparent celebration art replaces text-only combo banners. */
+.celebration-popup {
+  --celebration-duration: 1150ms;
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.celebration-popup[hidden] {
+  display: none;
+}
+
+.celebration-popup img {
+  width: min(90vw, 620px);
+  max-height: 68vh;
+  object-fit: contain;
+  opacity: 0;
+  filter: drop-shadow(0 16px 18px rgb(132 48 96 / 24%));
+  transform: scale(0.42) rotate(-4deg);
+  will-change: transform, opacity;
+}
+
+.celebration-popup.show img {
+  animation: celebrationPop var(--celebration-duration) cubic-bezier(0.2, 0.9, 0.25, 1) both;
+}
+
+.celebration-popup.tier-five {
+  --celebration-duration: 1300ms;
+}
+
+.celebration-popup.tier-six {
+  --celebration-duration: 1450ms;
+}
+
+.celebration-popup.tier-grand {
+  --celebration-duration: 1750ms;
+}
+
+.celebration-popup.tier-six img,
+.celebration-popup.tier-grand img {
+  width: min(96vw, 720px);
+  filter: drop-shadow(0 18px 24px rgb(216 52 132 / 34%));
+}
+
+@keyframes celebrationPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.42) rotate(-4deg);
+  }
+  18% {
+    opacity: 1;
+    transform: scale(1.12) rotate(1deg);
+  }
+  42% {
+    opacity: 1;
+    transform: scale(0.97) rotate(-0.5deg);
+  }
+  76% {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px) scale(1.05);
+  }
+}
+
+@media (max-width: 760px) {
+  .celebration-popup img {
+    width: min(94vw, 520px);
+  }
+
+  .celebration-popup.tier-six img,
+  .celebration-popup.tier-grand img {
+    width: min(98vw, 580px);
+  }
 }

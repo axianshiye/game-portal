@@ -1,10 +1,10 @@
 const SIZE = 8;
-const GAME_VERSION = "v0.13.0";
+const GAME_VERSION = "v0.14.0";
 const MAX_LEVELS = 500;
 const LEVEL_WAVE = [0.92, 0.98, 1.04, 1.08, 1, 0.95, 1.02, 1.06, 0.97, 1.1];
 const TYPES = [
   { name: "奶油马卡龙", src: "assets/foods/cream_macaron.png" },
-  { name: "布丁杯", src: "assets/foods/pudding_cup.png" },
+  { name: "布丁杯", src: "assets/foods/pudding_cup_v2.png" },
   { name: "星星冻", src: "assets/foods/star_jelly.png" },
   { name: "花朵饼", src: "assets/foods/flower_cookie_v2.png" },
   { name: "包包糖", src: "assets/foods/wrapped_candy.png" },
@@ -135,13 +135,11 @@ const MASCOT_ASSETS = {
   wow: "assets/mascot/wow.png",
   legend: "assets/mascot/legend.png",
 };
-const MASCOT_LINES = {
-  four: ["太厉害了！", "这个四消很漂亮！", "甜度拉满啦！", "好手感！"],
-  five: ["天啊，真厉害！", "哇！", "这一下太会了！", "星星都亮起来了！"],
-  six: ["太崇拜你了！", "牛啊！", "这也太强了！", "厨师帽都要飞起来啦！"],
-  combo: ["你真的是神啊！", "无人能敌！", "连起来了，太猛了！", "这一波甜到发光！"],
-  ice: ["冰块被敲开啦！", "解冻成功！"],
-  fire: ["小心火焰，把糖烧成石头了！", "火焰来捣乱啦！"],
+const CELEBRATION_ASSETS = {
+  four: { src: "assets/celebrations/four.png", label: "四连消", duration: 1150 },
+  five: { src: "assets/celebrations/five.png", label: "闪耀五连消", duration: 1300 },
+  six: { src: "assets/celebrations/six.png", label: "超棒六连消", duration: 1450 },
+  grand: { src: "assets/celebrations/grand.png", label: "大满贯", duration: 1750 },
 };
 const REQUIRED_IMAGE_ASSETS = [
   ...new Set([
@@ -150,6 +148,7 @@ const REQUIRED_IMAGE_ASSETS = [
     ...OBSTACLE_ASSETS,
     ...BASKET_ASSETS,
     ...Object.values(MASCOT_ASSETS),
+    ...Object.values(CELEBRATION_ASSETS).map((item) => item.src),
     ...PET_ORDER.flatMap((id) => [PETS[id].idle, PETS[id].eat]),
   ]),
 ];
@@ -186,7 +185,6 @@ const modalKickerEl = document.querySelector("#modalKicker");
 const modalTitleEl = document.querySelector("#modalTitle");
 const modalTextEl = document.querySelector("#modalText");
 const nextBtn = document.querySelector("#nextBtn");
-const comboBannerEl = document.querySelector("#comboBanner");
 const orientationLockEl = document.querySelector("#orientationLock");
 const loadingScreenEl = document.querySelector("#loadingScreen");
 const loaderFillEl = document.querySelector("#loaderFill");
@@ -207,7 +205,6 @@ const readyLevelTextEl = document.querySelector("#readyLevelText");
 const homeBasketImgEl = document.querySelector("#homeBasketImg");
 const homeFreshnessTextEl = document.querySelector("#homeFreshnessText");
 const mascotEl = document.querySelector("#mascot");
-const mascotBubbleEl = document.querySelector("#mascotBubble");
 const activePetImgEl = document.querySelector("#activePetImg");
 const activePetNameEl = document.querySelector("#activePetName");
 const petLevelTextEl = document.querySelector("#petLevelText");
@@ -225,6 +222,8 @@ const coinTextShopEl = document.querySelector("#coinTextShop");
 const coinTextProfileEl = document.querySelector("#coinTextProfile");
 const playerNameInputEl = document.querySelector("#playerNameInput");
 const saveProfileBtn = document.querySelector("#saveProfileBtn");
+const celebrationPopupEl = document.querySelector("#celebrationPopup");
+const celebrationImageEl = document.querySelector("#celebrationImage");
 const profileStatsEl = document.querySelector("#profileStats");
 const tabButtons = document.querySelectorAll(".tab-btn");
 
@@ -254,7 +253,7 @@ let busy = false;
 let ended = false;
 let endingSequence = false;
 let toastTimer = null;
-let bannerTimer = null;
+let celebrationTimer = null;
 let audioContext = null;
 let soundEnabled = getSoundPreference();
 let audioUnlocked = false;
@@ -1217,32 +1216,44 @@ function showToast(message) {
   toastTimer = setTimeout(() => toastEl.classList.remove("show"), 980);
 }
 
-function showComboBanner(message) {
-  clearTimeout(bannerTimer);
-  comboBannerEl.textContent = message;
-  comboBannerEl.hidden = false;
-  bannerTimer = setTimeout(() => {
-    comboBannerEl.hidden = true;
-  }, 980);
-}
-
 function pick(list) {
   return list[Math.floor(Math.random() * list.length)];
 }
 
-function cheerMascot(kind) {
-  const line = pick(MASCOT_LINES[kind] || MASCOT_LINES.four);
+function celebrationTierForCount(count) {
+  if (count >= 12) return "grand";
+  if (count >= 6) return "six";
+  if (count >= 5) return "five";
+  if (count >= 4) return "four";
+  return null;
+}
+
+function showCelebration(tier) {
+  const celebration = CELEBRATION_ASSETS[tier];
+  if (!celebration || !celebrationPopupEl || !celebrationImageEl) return;
+  clearTimeout(celebrationTimer);
+  celebrationImageEl.src = celebration.src;
+  celebrationImageEl.alt = celebration.label;
+  celebrationPopupEl.className = `celebration-popup tier-${tier}`;
+  celebrationPopupEl.hidden = false;
+  void celebrationPopupEl.offsetWidth;
+  celebrationPopupEl.classList.add("show");
+  celebrationTimer = setTimeout(() => {
+    celebrationPopupEl.hidden = true;
+    celebrationPopupEl.classList.remove("show");
+  }, celebration.duration);
+}
+
+function cheerMascot() {
   activePetImgEl.src = activePet().eat;
-  mascotBubbleEl.textContent = line;
   mascotEl.classList.remove("cheer");
   void mascotEl.offsetWidth;
   mascotEl.classList.add("cheer");
   clearTimeout(cheerMascot.timer);
   cheerMascot.timer = setTimeout(() => {
     activePetImgEl.src = activePet().idle;
-    mascotBubbleEl.textContent = "继续，我在给你烤甜点！";
     mascotEl.classList.remove("cheer");
-  }, 2600);
+  }, 900);
 }
 
 function showFloatingScore(amount, cells) {
@@ -1639,7 +1650,7 @@ function crackIceNear(matches) {
   if (cracked > 0) {
     collectObstacle("ice", cracked);
     playSound("special");
-    cheerMascot("ice");
+    cheerMascot();
     render();
   }
 
@@ -1714,9 +1725,11 @@ async function resolveBoard(preferredSpecialCell = null, checkEndAfter = true) {
       continue;
     }
     if (specials.size > 0) playSound("special");
-    if (biggestGroup >= 6) cheerMascot("six");
-    else if (biggestGroup >= 5) cheerMascot("five");
-    else if (biggestGroup >= 4) cheerMascot("four");
+    const celebrationTier = celebrationTierForCount(Math.max(biggestGroup, matched.size));
+    if (celebrationTier) {
+      showCelebration(celebrationTier);
+      cheerMascot();
+    }
     collectFoodFromMatches(matched);
     await markClearing(matched);
     clearedTotal += matched.size;
@@ -1734,12 +1747,10 @@ async function resolveBoard(preferredSpecialCell = null, checkEndAfter = true) {
   combo = Math.max(1, combo - 1);
   render();
 
-  if (combo >= 3) {
-    showComboBanner(`${combo} 连甜蜜爆发`);
-    cheerMascot("combo");
+  if (combo >= 3 || clearedTotal >= 12) {
+    showCelebration("grand");
+    cheerMascot();
   }
-  if (clearedTotal >= 9) showToast(`大片甜爆 +${clearedTotal}`);
-  else if (clearedTotal >= 5) showToast(`甜蜜连消 +${clearedTotal}`);
   if (!findMove()) {
     shuffleBoard(false);
     showToast("已自动洗牌");
@@ -1769,7 +1780,7 @@ async function triggerFireStep() {
   if (!piece) return;
   piece.burning = true;
   render();
-  cheerMascot("fire");
+  cheerMascot();
   showToast("火焰烧成石头！");
   grantObstacleItem("fire", 1);
   playSound("special");
@@ -1942,6 +1953,11 @@ async function clearCells(cells, message, expandSpecials = true, options = {}) {
     return;
   }
   collectFoodFromMatches(matched);
+  const celebrationTier = celebrationTierForCount(matched.size);
+  if (celebrationTier) {
+    showCelebration(celebrationTier);
+    cheerMascot();
+  }
   await markClearing(matched);
   const gained = matched.size * 55;
   score += gained;
