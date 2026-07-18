@@ -14,7 +14,7 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="apple-touch-icon" href="assets/app-icons/icon-180.png" />
     <link rel="icon" sizes="192x192" href="assets/app-icons/icon-192.png" />
-    <link rel="stylesheet" href="styles.css?v=0.12.2" />
+    <link rel="stylesheet" href="styles.css?v=0.13.0" />
   </head>
   <body>
     <div id="loadingScreen" class="loading-screen" role="status" aria-live="polite">
@@ -30,7 +30,7 @@
           <div id="loaderFill" class="loader-fill"></div>
           <span id="loaderPercent" class="loader-percent">0%</span>
         </div>
-        <span id="loaderVersion" class="loader-version">v0.12.2</span>
+        <span id="loaderVersion" class="loader-version">v0.13.0</span>
       </div>
     </div>
     <main class="game-shell" aria-label="甜甜三消游戏">
@@ -107,9 +107,11 @@
             <div id="mascot" class="pet-stage" aria-live="polite">
               <img id="activePetImg" src="assets/pets/capybara-idle.png" alt="当前宠物" />
               <div class="pet-meter">
-                <span id="activePetName">卡皮巴拉</span>
+                <span><b id="activePetName">卡皮巴拉</b><em id="petLevelText">Lv.1</em></span>
                 <strong id="petSatietyText">0/120</strong>
                 <div class="mini-track" aria-label="宠物饱食度"><i id="petSatietyFill"></i></div>
+                <div class="pet-xp-label"><small>经验</small><small id="petXpText">0/60</small></div>
+                <div class="mini-track pet-xp-track" aria-label="宠物升级经验"><i id="petXpFill"></i></div>
               </div>
               <div id="mascotBubble" class="mascot-bubble">加油，今天也要甜甜的！</div>
             </div>
@@ -200,8 +202,8 @@
         <span>旋转手机后继续甜甜三消</span>
       </div>
     </div>
-    <div id="versionBadge" class="version-badge">v0.12.2</div>
+    <div id="versionBadge" class="version-badge">v0.13.0</div>
 
-    <script src="game.js?v=0.12.2"></script>
+    <script src="game.js?v=0.13.0"></script>
   </body>
 </html>
