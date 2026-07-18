@@ -1,5 +1,5 @@
 const SIZE = 8;
-const GAME_VERSION = "v0.14.0";
+const GAME_VERSION = "v0.15.0";
 const MAX_LEVELS = 500;
 const LEVEL_WAVE = [0.92, 0.98, 1.04, 1.08, 1, 0.95, 1.02, 1.06, 0.97, 1.1];
 const TYPES = [
@@ -7,7 +7,7 @@ const TYPES = [
   { name: "布丁杯", src: "assets/foods/pudding_cup_v2.png" },
   { name: "星星冻", src: "assets/foods/star_jelly.png" },
   { name: "花朵饼", src: "assets/foods/flower_cookie_v2.png" },
-  { name: "包包糖", src: "assets/foods/wrapped_candy.png" },
+  { name: "包包糖", src: "assets/foods/wrapped_candy_v2.png" },
   { name: "苹果", src: "assets/foods/apple.png" },
   { name: "香蕉", src: "assets/foods/banana.png" },
   { name: "葡萄", src: "assets/foods/grape.png" },
@@ -136,10 +136,10 @@ const MASCOT_ASSETS = {
   legend: "assets/mascot/legend.png",
 };
 const CELEBRATION_ASSETS = {
-  four: { src: "assets/celebrations/four.png", label: "四连消", duration: 1150 },
-  five: { src: "assets/celebrations/five.png", label: "闪耀五连消", duration: 1300 },
-  six: { src: "assets/celebrations/six.png", label: "超棒六连消", duration: 1450 },
-  grand: { src: "assets/celebrations/grand.png", label: "大满贯", duration: 1750 },
+  four: { src: "assets/celebrations/four_v2.png", label: "四连消", duration: 1150 },
+  five: { src: "assets/celebrations/five_v2.png", label: "闪耀五连消", duration: 1300 },
+  six: { src: "assets/celebrations/six_v2.png", label: "超棒六连消", duration: 1450 },
+  grand: { src: "assets/celebrations/grand_v2.png", label: "大满贯", duration: 1750 },
 };
 const REQUIRED_IMAGE_ASSETS = [
   ...new Set([

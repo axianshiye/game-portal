@@ -1,4 +1,4 @@
-const CACHE_NAME = "tiantian-match3-v16";
+const CACHE_NAME = "tiantian-match3-v17";
 const ASSETS = [
   "./index.html",
   "./styles.css",
@@ -13,10 +13,10 @@ const ASSETS = [
   "./assets/boosters/hammer.png",
   "./assets/boosters/row-blast.png",
   "./assets/boosters/spark.png",
-  "./assets/celebrations/five.png",
-  "./assets/celebrations/four.png",
-  "./assets/celebrations/grand.png",
-  "./assets/celebrations/six.png",
+  "./assets/celebrations/five_v2.png",
+  "./assets/celebrations/four_v2.png",
+  "./assets/celebrations/grand_v2.png",
+  "./assets/celebrations/six_v2.png",
   "./assets/mascot/cheer.png",
   "./assets/mascot/idle.png",
   "./assets/mascot/legend.png",
@@ -48,7 +48,7 @@ const ASSETS = [
   "./assets/foods/takoyaki.png",
   "./assets/foods/toast.png",
   "./assets/foods/tomato.png",
-  "./assets/foods/wrapped_candy.png",
+  "./assets/foods/wrapped_candy_v2.png",
   "./assets/pets/calf-eat.png",
   "./assets/pets/calf-idle.png",
   "./assets/pets/capybara-eat.png",
