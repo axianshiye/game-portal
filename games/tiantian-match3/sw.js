@@ -1,4 +1,4 @@
-const CACHE_NAME = "tiantian-match3-v11";
+const CACHE_NAME = "tiantian-match3-v12";
 const ASSETS = [
   "./index.html",
   "./styles.css",
@@ -55,6 +55,11 @@ const ASSETS = [
   "./assets/pets/piglet-idle.png",
   "./assets/pets/puppy-eat.png",
   "./assets/pets/puppy-idle.png",
+  "./assets/pets/capybara-ready-hd.png",
+  "./assets/pets/puppy-ready-hd.png",
+  "./assets/pets/calf-ready-hd.png",
+  "./assets/pets/piglet-ready-hd.png",
+  "./assets/pets/parrot-ready-hd.png",
   "./assets/baskets/basket-0.png",
   "./assets/baskets/basket-1.png",
   "./assets/baskets/basket-2.png",
