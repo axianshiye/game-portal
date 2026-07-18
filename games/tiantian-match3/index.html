@@ -14,7 +14,7 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="apple-touch-icon" href="assets/app-icons/icon-180.png" />
     <link rel="icon" sizes="192x192" href="assets/app-icons/icon-192.png" />
-    <link rel="stylesheet" href="styles.css?v=0.13.0" />
+    <link rel="stylesheet" href="styles.css?v=0.14.0" />
   </head>
   <body>
     <div id="loadingScreen" class="loading-screen" role="status" aria-live="polite">
@@ -30,7 +30,7 @@
           <div id="loaderFill" class="loader-fill"></div>
           <span id="loaderPercent" class="loader-percent">0%</span>
         </div>
-        <span id="loaderVersion" class="loader-version">v0.13.0</span>
+        <span id="loaderVersion" class="loader-version">v0.14.0</span>
       </div>
     </div>
     <main class="game-shell" aria-label="甜甜三消游戏">
@@ -113,7 +113,6 @@
                 <div class="pet-xp-label"><small>经验</small><small id="petXpText">0/60</small></div>
                 <div class="mini-track pet-xp-track" aria-label="宠物升级经验"><i id="petXpFill"></i></div>
               </div>
-              <div id="mascotBubble" class="mascot-bubble">加油，今天也要甜甜的！</div>
             </div>
             <div class="basket-mini">
               <img id="basketImg" src="assets/baskets/basket-0.png" alt="食物篮子" />
@@ -185,6 +184,9 @@
           </div>
           </aside>
         </section>
+        <div id="celebrationPopup" class="celebration-popup" hidden aria-live="polite">
+          <img id="celebrationImage" src="assets/celebrations/four.png" alt="四连消" />
+        </div>
       </section>
       <div id="modal" class="modal" hidden>
         <div class="modal-card">
@@ -194,7 +196,6 @@
           <button id="nextBtn" type="button">下一关</button>
         </div>
       </div>
-      <div id="comboBanner" class="combo-banner" hidden></div>
     </main>
     <div id="orientationLock" class="orientation-lock" aria-hidden="true">
       <div>
@@ -202,8 +203,8 @@
         <span>旋转手机后继续甜甜三消</span>
       </div>
     </div>
-    <div id="versionBadge" class="version-badge">v0.13.0</div>
+    <div id="versionBadge" class="version-badge">v0.14.0</div>
 
-    <script src="game.js?v=0.13.0"></script>
+    <script src="game.js?v=0.14.0"></script>
   </body>
 </html>
