@@ -1,4 +1,4 @@
-const CACHE_NAME = "tiantian-match3-v13";
+const CACHE_NAME = "tiantian-match3-v14";
 const ASSETS = [
   "./index.html",
   "./styles.css",
@@ -65,27 +65,7 @@ const ASSETS = [
   "./assets/baskets/basket-2.png",
   "./assets/baskets/basket-3.png",
   "./assets/baskets/basket-4.png",
-  "./assets/baskets/basket-5.png",
-  "./assets/voices/combo-13.mp3",
-  "./assets/voices/combo-14.mp3",
-  "./assets/voices/combo-15.mp3",
-  "./assets/voices/combo-16.mp3",
-  "./assets/voices/fire-19.mp3",
-  "./assets/voices/fire-20.mp3",
-  "./assets/voices/five-05.mp3",
-  "./assets/voices/five-06.mp3",
-  "./assets/voices/five-07.mp3",
-  "./assets/voices/five-08.mp3",
-  "./assets/voices/four-01.mp3",
-  "./assets/voices/four-02.mp3",
-  "./assets/voices/four-03.mp3",
-  "./assets/voices/four-04.mp3",
-  "./assets/voices/ice-17.mp3",
-  "./assets/voices/ice-18.mp3",
-  "./assets/voices/six-09.mp3",
-  "./assets/voices/six-10.mp3",
-  "./assets/voices/six-11.mp3",
-  "./assets/voices/six-12.mp3"
+  "./assets/baskets/basket-5.png"
 ];
 
 self.addEventListener("install", (event) => {
