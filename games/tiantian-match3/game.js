@@ -1,5 +1,5 @@
 const SIZE = 8;
-const GAME_VERSION = "v0.11.0";
+const GAME_VERSION = "v0.12.0";
 const MAX_LEVELS = 500;
 const LEVEL_WAVE = [0.92, 0.98, 1.04, 1.08, 1, 0.95, 1.02, 1.06, 0.97, 1.1];
 const TYPES = [
@@ -48,6 +48,8 @@ const PETS = {
     skillCost: 96,
     idle: "assets/pets/capybara-idle.png",
     eat: "assets/pets/capybara-eat.png",
+    ready: "assets/pets/capybara-ready-hd.png",
+    description: "温柔可靠的厨房队长，糖锤能敲掉目标和上下左右四格。",
   },
   puppy: {
     name: "小奶狗",
@@ -59,6 +61,8 @@ const PETS = {
     skillCost: 102,
     idle: "assets/pets/puppy-idle.png",
     eat: "assets/pets/puppy-eat.png",
+    ready: "assets/pets/puppy-ready-hd.png",
+    description: "嗅觉灵敏的小帮手，寻宝十字能同时清理整行和整列。",
   },
   calf: {
     name: "小奶牛",
@@ -70,6 +74,8 @@ const PETS = {
     skillCost: 108,
     idle: "assets/pets/calf-idle.png",
     eat: "assets/pets/calf-eat.png",
+    ready: "assets/pets/calf-ready-hd.png",
+    description: "奶香十足的稳重伙伴，技能可以清空选中的一整列。",
   },
   piglet: {
     name: "小猪",
@@ -81,6 +87,8 @@ const PETS = {
     skillCost: 104,
     idle: "assets/pets/piglet-idle.png",
     eat: "assets/pets/piglet-eat.png",
+    ready: "assets/pets/piglet-ready-hd.png",
+    description: "热爱烘焙的大胃王，技能可以横扫选中的一整行。",
   },
   parrot: {
     name: "小鹦鹉",
@@ -92,6 +100,8 @@ const PETS = {
     skillCost: 92,
     idle: "assets/pets/parrot-idle.png",
     eat: "assets/pets/parrot-eat.png",
+    ready: "assets/pets/parrot-ready-hd.png",
+    description: "活泼机灵的甜点侦察员，星爆能清除一种相同食物。",
   },
 };
 const PET_ORDER = ["capybara", "puppy", "calf", "piglet", "parrot"];
@@ -166,7 +176,7 @@ const REQUIRED_IMAGE_ASSETS = [
     ...OBSTACLE_ASSETS,
     ...BASKET_ASSETS,
     ...Object.values(MASCOT_ASSETS),
-    ...PET_ORDER.flatMap((id) => [PETS[id].idle, PETS[id].eat]),
+    ...PET_ORDER.flatMap((id) => [PETS[id].idle, PETS[id].eat, PETS[id].ready]),
   ]),
 ];
 const REQUIRED_AUDIO_ASSETS = Object.values(MASCOT_VOICES);
@@ -222,6 +232,7 @@ const readyPetImgEl = document.querySelector("#readyPetImg");
 const readyPetNameEl = document.querySelector("#readyPetName");
 const readyLevelTextEl = document.querySelector("#readyLevelText");
 const homeBasketImgEl = document.querySelector("#homeBasketImg");
+const homeFreshnessTextEl = document.querySelector("#homeFreshnessText");
 const mascotEl = document.querySelector("#mascot");
 const mascotBubbleEl = document.querySelector("#mascotBubble");
 const activePetImgEl = document.querySelector("#activePetImg");
@@ -279,6 +290,8 @@ let isLandscapeLocked = false;
 let turnsTaken = 0;
 let activeTab = "game";
 let gameStarted = false;
+let expandedPetId = null;
+let shopNotice = null;
 let player = loadPlayer();
 applyOfflineFeeding();
 
@@ -647,24 +660,30 @@ function gainCoins(amount, reason = "过关奖励") {
 
 function buyPet(id) {
   const pet = PETS[id];
-  if (!pet || player.unlockedPets.includes(id)) {
+  if (!pet) return;
+  if (player.unlockedPets.includes(id)) {
     player.activePet = id;
+    expandedPetId = id;
+    shopNotice = { id, kind: "success", text: `${pet.name}已设为出战宠物` };
     savePlayer();
     renderHomeHub();
     return;
   }
   if (player.coins < pet.price) {
-    showToast("金币不够");
+    expandedPetId = id;
+    shopNotice = { id, kind: "error", text: `金币不足，还差 ${pet.price - player.coins}` };
+    renderShop();
     return;
   }
   player.coins -= pet.price;
   player.unlockedPets.push(id);
   player.pets[id] = { level: 1, satiety: 0 };
   player.activePet = id;
+  expandedPetId = id;
+  shopNotice = { id, kind: "success", text: `购买成功，${pet.name}已加入厨房` };
   player.basket.capacity = basketCapacity();
   savePlayer();
   renderHomeHub();
-  showToast(`${pet.name}加入厨房！`);
 }
 
 function switchTab(tabName) {
@@ -688,7 +707,7 @@ function renderHomeHub() {
   const basketSrc = basketAsset();
   homeLevelEl.textContent = `${getSavedLevel() + 1}`;
   homeCoinsEl.textContent = `${player.coins}`;
-  readyPetImgEl.src = pet.idle;
+  readyPetImgEl.src = pet.ready || pet.idle;
   readyPetNameEl.textContent = pet.name;
   readyLevelTextEl.textContent = gameStarted ? `继续挑战第 ${level + 1} 关` : `准备挑战第 ${getSavedLevel() + 1} 关`;
   startGameBtn.textContent = gameStarted ? "继续游戏" : "开始游戏";
@@ -1084,6 +1103,7 @@ function renderPetHud() {
   homeBasketImgEl.src = basketSrc;
   const left = Math.max(0, Math.round(((basket.freshUntil || 0) - Date.now()) / 60000));
   freshnessTextEl.textContent = left > 0 ? `保鲜 ${left} 分钟` : "不新鲜";
+  homeFreshnessTextEl.textContent = left > 0 ? `保鲜 ${left} 分钟` : "食物已不新鲜";
   coinTextShopEl.textContent = `金币 ${player.coins}`;
   coinTextProfileEl.textContent = `金币 ${player.coins}`;
 }
@@ -1093,19 +1113,44 @@ function renderShop() {
   for (const id of PET_ORDER) {
     const pet = PETS[id];
     const owned = player.unlockedPets.includes(id);
-    const card = document.createElement("button");
-    card.type = "button";
-    card.className = `pet-card${owned ? " owned" : ""}`;
+    const expanded = expandedPetId === id;
+    const state = player.pets[id] || { level: 1, satiety: 0 };
+    const skillCost = Math.max(72, pet.skillCost - (state.level - 1) * 4);
+    const card = document.createElement("article");
+    card.className = `pet-card${owned ? " owned" : ""}${expanded ? " expanded" : ""}`;
     card.dataset.pet = id;
     card.innerHTML = `
-      <img src="${pet.idle}" alt="" />
-      <span>
-        <strong>${pet.name}</strong>
-        <span>${pet.skillName} · ${pet.appetite}/小时</span>
-        <small>${owned ? (player.activePet === id ? "当前出战" : "点击出战") : `${pet.price} 金币解锁`}</small>
-      </span>
+      <button class="pet-card-summary" type="button" aria-expanded="${expanded}">
+        <img src="${pet.idle}" alt="" />
+        <span>
+          <strong>${pet.name}</strong>
+          <span>${pet.skillName} · ${pet.appetite}/小时</span>
+          <small>${owned ? (player.activePet === id ? "当前出战" : "已拥有") : `${pet.price} 金币`}</small>
+        </span>
+        <i aria-hidden="true">${expanded ? "−" : "+"}</i>
+      </button>
+      <div class="pet-card-details" ${expanded ? "" : "hidden"}>
+        <p>${pet.description}</p>
+        <div class="pet-parameters">
+          <span><small>价格</small><strong>${owned ? "已拥有" : `${pet.price} 金币`}</strong></span>
+          <span><small>技能</small><strong>${pet.skillName}</strong></span>
+          <span><small>技能消耗</small><strong>${skillCost} 饱食度</strong></span>
+          <span><small>每小时食量</small><strong>${pet.appetite}</strong></span>
+          <span><small>饱食上限</small><strong>${pet.maxSatiety}</strong></span>
+          <span><small>当前等级</small><strong>Lv.${state.level}</strong></span>
+        </div>
+        ${shopNotice?.id === id ? `<div class="shop-notice ${shopNotice.kind}">${shopNotice.text}</div>` : ""}
+        <button class="pet-buy-btn" type="button" ${owned && player.activePet === id ? "disabled" : ""}>
+          ${owned ? (player.activePet === id ? "当前出战" : "设为出战") : `购买 · ${pet.price} 金币`}
+        </button>
+      </div>
     `;
-    card.addEventListener("click", () => buyPet(id));
+    card.querySelector(".pet-card-summary").addEventListener("click", () => {
+      expandedPetId = expanded ? null : id;
+      if (shopNotice?.id !== id) shopNotice = null;
+      renderShop();
+    });
+    card.querySelector(".pet-buy-btn")?.addEventListener("click", () => buyPet(id));
     petShopEl.append(card);
   }
 }

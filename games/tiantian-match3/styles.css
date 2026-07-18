@@ -1410,6 +1410,222 @@ body.landscape-locked .version-badge {
 
 }
 
+/* v0.12 interaction and layout refinements. */
+.ready-stage #readyPetImg {
+  left: 50%;
+  bottom: 1%;
+  width: min(58%, 360px);
+  height: 96%;
+  transform: translateX(-50%);
+}
+
+.home-basket-wrap {
+  position: absolute;
+  right: 3%;
+  bottom: 3%;
+  display: grid;
+  justify-items: center;
+  width: min(31%, 170px);
+  z-index: 2;
+}
+
+.home-basket-wrap .home-basket {
+  position: static;
+  width: 100%;
+  height: auto;
+}
+
+.home-basket-wrap small {
+  margin-top: -6px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.66rem;
+  font-weight: 900;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 5px 12px rgba(143, 72, 110, 0.13);
+}
+
+.exit-game-btn {
+  color: #fff;
+  background: linear-gradient(135deg, #ff6fa9, #ff8f9d);
+  box-shadow: 0 7px 14px rgba(255, 111, 169, 0.24);
+}
+
+.game-companion .pet-boosters {
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.game-view .board-wrap,
+.game-view .play-area {
+  overflow: visible;
+}
+
+.pet-card {
+  display: block;
+  padding: 0;
+  overflow: hidden;
+}
+
+.pet-card.expanded {
+  grid-column: 1 / -1;
+}
+
+.pet-card-summary {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr) 24px;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  min-height: 72px;
+  padding: 8px;
+  color: var(--ink);
+  text-align: left;
+  background: transparent;
+  box-shadow: none;
+}
+
+.pet-card-summary:hover,
+.pet-card-summary:active {
+  transform: none;
+}
+
+.pet-card-summary img {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+}
+
+.pet-card-summary span,
+.pet-card-summary small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.64rem;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.pet-card-summary strong {
+  display: block;
+  color: var(--ink);
+  font-size: 0.88rem;
+}
+
+.pet-card-summary i {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  color: var(--rose);
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 900;
+  background: rgba(255, 226, 239, 0.76);
+}
+
+.pet-card-details {
+  display: grid;
+  gap: 9px;
+  padding: 0 10px 10px;
+  border-top: 1px solid rgba(255, 213, 229, 0.62);
+}
+
+.pet-card-details p {
+  margin: 9px 0 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.pet-parameters {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.pet-parameters > span {
+  min-width: 0;
+  padding: 7px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.pet-parameters small,
+.pet-parameters strong {
+  display: block;
+}
+
+.pet-parameters small {
+  color: var(--muted);
+  font-size: 0.58rem;
+  font-weight: 800;
+}
+
+.pet-parameters strong {
+  margin-top: 2px;
+  color: var(--ink);
+  font-size: 0.7rem;
+}
+
+.shop-notice {
+  padding: 7px 9px;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.shop-notice.error {
+  color: #b64262;
+  background: rgba(255, 218, 226, 0.9);
+}
+
+.shop-notice.success {
+  color: #287a62;
+  background: rgba(218, 249, 235, 0.9);
+}
+
+.pet-buy-btn {
+  min-height: 38px;
+  padding: 0.5rem 0.75rem;
+}
+
+.pet-buy-btn:disabled {
+  opacity: 0.56;
+  cursor: default;
+}
+
+@media (max-width: 760px) {
+  .ready-stage #readyPetImg {
+    width: min(64%, 310px);
+  }
+
+  .home-basket-wrap {
+    right: 1%;
+    width: min(34%, 140px);
+  }
+
+  .game-companion .pet-boosters {
+    gap: 3px;
+  }
+
+  .pet-card-summary {
+    grid-template-columns: 50px minmax(0, 1fr) 22px;
+    min-height: 66px;
+    padding: 6px;
+  }
+
+  .pet-card-summary img {
+    width: 50px;
+    height: 50px;
+  }
+}
+
 /* Keep the new level layout authoritative over legacy compact-height rules. */
 @media (max-width: 760px) {
   .game-view .board {
@@ -2152,5 +2368,73 @@ body.landscape-locked .version-badge {
 @media (max-width: 390px), (max-height: 700px) {
   .game-view .board {
     --cell: min(calc((100vw - 66px) / 8), calc((var(--layout-height) - 326px - env(safe-area-inset-bottom, 0px)) / 8), 38px);
+  }
+}
+
+/* v0.12 authoritative overrides. Keep these after every legacy mobile rule. */
+@keyframes readyPetIdle {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0) rotate(-1deg);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-5px) rotate(1deg);
+  }
+}
+
+.ready-stage #readyPetImg {
+  left: 50%;
+  bottom: 1%;
+  width: min(58%, 360px);
+  height: 96%;
+  object-fit: contain;
+  object-position: center bottom;
+  transform: translateX(-50%);
+  animation-name: readyPetIdle;
+}
+
+.home-basket-wrap {
+  position: absolute;
+  right: 3%;
+  bottom: 3%;
+  z-index: 3;
+  display: grid;
+  width: min(28%, 150px);
+  justify-items: center;
+  gap: 2px;
+}
+
+.home-basket-wrap .home-basket {
+  position: static;
+  right: auto;
+  bottom: auto;
+  width: 100%;
+}
+
+.exit-game-btn {
+  color: #fff;
+  background: linear-gradient(135deg, #ff5f98, #ff8a7d);
+  border-color: rgb(255 255 255 / 78%);
+  box-shadow: 0 5px 12px rgb(218 74 126 / 24%);
+}
+
+.game-companion .pet-boosters {
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.game-view .play-area,
+.game-view .board-wrap {
+  overflow: visible;
+}
+
+@media (max-width: 760px) {
+  .ready-stage #readyPetImg {
+    width: min(64%, 310px);
+  }
+
+  .home-basket-wrap {
+    right: 1%;
+    width: min(34%, 140px);
   }
 }

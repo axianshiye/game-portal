@@ -14,7 +14,7 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="apple-touch-icon" href="assets/app-icons/icon-180.png" />
     <link rel="icon" sizes="192x192" href="assets/app-icons/icon-192.png" />
-    <link rel="stylesheet" href="styles.css?v=0.11.0" />
+    <link rel="stylesheet" href="styles.css?v=0.12.0" />
   </head>
   <body>
     <div id="loadingScreen" class="loading-screen" role="status" aria-live="polite">
@@ -30,7 +30,7 @@
           <div id="loaderFill" class="loader-fill"></div>
           <span id="loaderPercent" class="loader-percent">0%</span>
         </div>
-        <span id="loaderVersion" class="loader-version">v0.11.0</span>
+        <span id="loaderVersion" class="loader-version">v0.12.0</span>
       </div>
     </div>
     <main class="game-shell" aria-label="甜甜三消游戏">
@@ -54,8 +54,11 @@
               <small id="readyLevelText">准备挑战第 1 关</small>
             </div>
             <div class="ready-stage">
-              <img id="readyPetImg" src="assets/pets/capybara-idle.png" alt="准备出战的宠物" />
-              <img id="homeBasketImg" class="home-basket" src="assets/baskets/basket-0.png" alt="食物篮子" />
+              <img id="readyPetImg" src="assets/pets/capybara-ready-hd.png" alt="准备出战的宠物" />
+              <div class="home-basket-wrap">
+                <img id="homeBasketImg" class="home-basket" src="assets/baskets/basket-0.png" alt="食物篮子" />
+                <small id="homeFreshnessText">保鲜 70 分钟</small>
+              </div>
             </div>
             <button id="startGameBtn" class="start-game-btn" type="button">开始游戏</button>
           </section>
@@ -118,6 +121,38 @@
                 <small id="freshnessText">保鲜 70 分钟</small>
               </div>
             </div>
+            <div class="boosters pet-boosters" aria-label="宠物技能">
+              <button id="hammerBtn" class="booster" type="button">
+                <img src="assets/boosters/hammer.png" alt="" />
+                <span>卡皮糖锤</span>
+                <strong id="hammerCount">2</strong>
+              </button>
+              <button id="sparkBtn" class="booster" type="button">
+                <img src="assets/boosters/spark.png" alt="" />
+                <span>鹦鹉星爆</span>
+                <strong id="sparkCount">1</strong>
+              </button>
+              <button id="rowBlastBtn" class="booster" type="button">
+                <img src="assets/boosters/row-blast.png" alt="" />
+                <span>小猪横扫</span>
+                <strong id="rowBlastCount">1</strong>
+              </button>
+              <button id="colBlastBtn" class="booster" type="button">
+                <img src="assets/boosters/col-blast.png" alt="" />
+                <span>奶牛竖扫</span>
+                <strong id="colBlastCount">1</strong>
+              </button>
+              <button id="crossBlastBtn" class="booster" type="button">
+                <img src="assets/boosters/cross-blast.png" alt="" />
+                <span>奶狗十字</span>
+                <strong id="crossBlastCount">1</strong>
+              </button>
+              <button id="addMovesBtn" class="booster" type="button">
+                <img src="assets/boosters/add-moves.png" alt="" />
+                <span>加餐步数</span>
+                <strong id="addMovesCount">1</strong>
+              </button>
+            </div>
           </div>
         </section>
 
@@ -146,38 +181,6 @@
               <span id="soundIcon">声音开</span>
             </button>
           </div>
-          <div class="boosters" aria-label="道具">
-            <button id="hammerBtn" class="booster" type="button">
-              <img src="assets/boosters/hammer.png" alt="" />
-              <span>卡皮糖锤</span>
-              <strong id="hammerCount">2</strong>
-            </button>
-            <button id="sparkBtn" class="booster" type="button">
-              <img src="assets/boosters/spark.png" alt="" />
-              <span>鹦鹉星爆</span>
-              <strong id="sparkCount">1</strong>
-            </button>
-            <button id="rowBlastBtn" class="booster" type="button">
-              <img src="assets/boosters/row-blast.png" alt="" />
-              <span>小猪横扫</span>
-              <strong id="rowBlastCount">1</strong>
-            </button>
-            <button id="colBlastBtn" class="booster" type="button">
-              <img src="assets/boosters/col-blast.png" alt="" />
-              <span>奶牛竖扫</span>
-              <strong id="colBlastCount">1</strong>
-            </button>
-            <button id="crossBlastBtn" class="booster" type="button">
-              <img src="assets/boosters/cross-blast.png" alt="" />
-              <span>奶狗十字</span>
-              <strong id="crossBlastCount">1</strong>
-            </button>
-            <button id="addMovesBtn" class="booster" type="button">
-              <img src="assets/boosters/add-moves.png" alt="" />
-              <span>加餐步数</span>
-              <strong id="addMovesCount">1</strong>
-            </button>
-          </div>
           </aside>
         </section>
       </section>
@@ -197,8 +200,8 @@
         <span>旋转手机后继续甜甜三消</span>
       </div>
     </div>
-    <div id="versionBadge" class="version-badge">v0.11.0</div>
+    <div id="versionBadge" class="version-badge">v0.12.0</div>
 
-    <script src="game.js?v=0.11.0"></script>
+    <script src="game.js?v=0.12.0"></script>
   </body>
 </html>
