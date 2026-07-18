@@ -491,11 +491,6 @@ button:active {
   pointer-events: none;
 }
 
-.ice-overlay {
-  opacity: 0.92;
-  filter: drop-shadow(0 0 7px rgba(164, 235, 255, 0.58));
-}
-
 .fire-overlay {
   inset: -18%;
   z-index: 4;
@@ -2451,4 +2446,56 @@ body.landscape-locked .version-badge {
 
 .game-view .tile {
   overflow: visible;
+}
+
+/* v0.13: pet growth and obstacle-only ice cells. */
+.game-view .board {
+  transform: translateY(8px) translateZ(0);
+}
+
+.tile[data-obstacle="ice"] .tile-art {
+  width: 110%;
+  height: 110%;
+}
+
+.pet-meter > span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+}
+
+.pet-meter b,
+.pet-meter em {
+  overflow: hidden;
+  font-style: normal;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pet-meter em {
+  flex: 0 0 auto;
+  color: #ff659d;
+  font-size: 0.6rem;
+}
+
+.pet-xp-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.54rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.pet-xp-track {
+  margin-top: 2px;
+  background: rgba(218, 244, 239, 0.96);
+}
+
+.pet-xp-track i {
+  background: linear-gradient(90deg, #59d6b2, #79bfff);
 }

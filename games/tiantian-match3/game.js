@@ -1,5 +1,5 @@
 const SIZE = 8;
-const GAME_VERSION = "v0.12.2";
+const GAME_VERSION = "v0.13.0";
 const MAX_LEVELS = 500;
 const LEVEL_WAVE = [0.92, 0.98, 1.04, 1.08, 1, 0.95, 1.02, 1.06, 0.97, 1.1];
 const TYPES = [
@@ -210,8 +210,11 @@ const mascotEl = document.querySelector("#mascot");
 const mascotBubbleEl = document.querySelector("#mascotBubble");
 const activePetImgEl = document.querySelector("#activePetImg");
 const activePetNameEl = document.querySelector("#activePetName");
+const petLevelTextEl = document.querySelector("#petLevelText");
 const petSatietyTextEl = document.querySelector("#petSatietyText");
 const petSatietyFillEl = document.querySelector("#petSatietyFill");
+const petXpTextEl = document.querySelector("#petXpText");
+const petXpFillEl = document.querySelector("#petXpFill");
 const basketTextEl = document.querySelector("#basketText");
 const basketImgEl = document.querySelector("#basketImg");
 const freshnessTextEl = document.querySelector("#freshnessText");
@@ -441,7 +444,7 @@ function defaultPlayer() {
     unlockedPets: ["capybara"],
     activePet: "capybara",
     pets: {
-      capybara: { level: 1, satiety: 0 },
+      capybara: { level: 1, satiety: 0, xp: 0 },
     },
     basket: {
       amount: 0,
@@ -473,7 +476,10 @@ function loadPlayer() {
       inventory: { ...base.inventory, ...(saved.inventory || {}) },
     };
     for (const id of merged.unlockedPets) {
-      if (!merged.pets[id]) merged.pets[id] = { level: 1, satiety: 0 };
+      if (!merged.pets[id]) merged.pets[id] = { level: 1, satiety: 0, xp: 0 };
+      merged.pets[id].level = Math.max(1, Number(merged.pets[id].level) || 1);
+      merged.pets[id].satiety = Math.max(0, Number(merged.pets[id].satiety) || 0);
+      merged.pets[id].xp = Math.max(0, Number(merged.pets[id].xp) || 0);
     }
     return merged;
   } catch {
@@ -509,12 +515,34 @@ function activePetId() {
 
 function activePetState() {
   const id = activePetId();
-  if (!player.pets[id]) player.pets[id] = { level: 1, satiety: 0 };
+  if (!player.pets[id]) player.pets[id] = { level: 1, satiety: 0, xp: 0 };
+  if (!Number.isFinite(player.pets[id].xp)) player.pets[id].xp = 0;
   return player.pets[id];
 }
 
 function activePet() {
   return PETS[activePetId()];
+}
+
+function petXpNeeded(level) {
+  return 60 + Math.max(0, level - 1) * 30;
+}
+
+function gainPetExperience(amount) {
+  if (amount <= 0) return;
+  const state = activePetState();
+  state.xp += amount;
+  let levelsGained = 0;
+
+  while (state.xp >= petXpNeeded(state.level)) {
+    state.xp -= petXpNeeded(state.level);
+    state.level += 1;
+    levelsGained += 1;
+  }
+
+  player.pets[activePetId()] = state;
+  savePlayer();
+  if (levelsGained > 0) showToast(`${activePet().name}升到 Lv.${state.level}！`);
 }
 
 function applyOfflineFeeding() {
@@ -528,7 +556,7 @@ function applyOfflineFeeding() {
   const petIds = ownedPets();
   for (const id of petIds) {
     const pet = PETS[id];
-    const state = player.pets[id] || { level: 1, satiety: 0 };
+    const state = player.pets[id] || { level: 1, satiety: 0, xp: 0 };
     const share = pet.appetite / Math.max(1, appetite);
     state.satiety = Math.min(pet.maxSatiety, state.satiety + consumed * share * staleFactor);
     player.pets[id] = state;
@@ -584,7 +612,7 @@ function spendPetSatiety(skill) {
     showToast("先在商店解锁这只宠物");
     return false;
   }
-  const state = player.pets[petId] || { level: 1, satiety: 0 };
+  const state = player.pets[petId] || { level: 1, satiety: 0, xp: 0 };
   const cost = Math.max(72, pet.skillCost - (state.level - 1) * 4);
   if (state.satiety < cost) {
     showToast(`${pet.name}还没吃饱`);
@@ -609,7 +637,7 @@ function skillLabel(skill) {
   const petId = SKILL_TO_PET[skill];
   const pet = PETS[petId];
   if (!pet) return "";
-  const state = player.pets[petId] || { level: 1, satiety: 0 };
+  const state = player.pets[petId] || { level: 1, satiety: 0, xp: 0 };
   const cost = Math.max(72, pet.skillCost - (state.level - 1) * 4);
   if (!player.unlockedPets.includes(petId)) return `未解锁`;
   return `${Math.floor(state.satiety)}/${cost}`;
@@ -640,7 +668,7 @@ function buyPet(id) {
   }
   player.coins -= pet.price;
   player.unlockedPets.push(id);
-  player.pets[id] = { level: 1, satiety: 0 };
+  player.pets[id] = { level: 1, satiety: 0, xp: 0 };
   player.activePet = id;
   expandedPetId = id;
   shopNotice = { id, kind: "success", text: `购买成功，${pet.name}已加入厨房` };
@@ -821,8 +849,13 @@ function stoneTile() {
   return { type: null, special: null, ice: false, stone: true, burning: false };
 }
 
+function iceTile() {
+  return { type: null, special: null, ice: true, stone: false, burning: false };
+}
+
 function tileVisual(piece) {
   if (piece?.stone) return OBSTACLE_TYPES.stone;
+  if (piece?.ice) return OBSTACLE_TYPES.ice;
   return piece.special ? SPECIAL_TYPES[piece.special] : TYPES[piece.type];
 }
 
@@ -920,7 +953,7 @@ function placeInitialObstacles() {
     if (placedIce >= config.iceCount) break;
     const piece = board[cell.row][cell.col];
     if (!piece || piece.stone) continue;
-    piece.ice = true;
+    board[cell.row][cell.col] = iceTile();
     placedIce += 1;
   }
 }
@@ -963,12 +996,13 @@ function applyTileState(button, row, col, options = {}) {
 
   if (piece.special) button.dataset.special = piece.special;
   if (piece.stone) button.dataset.obstacle = "stone";
+  if (piece.ice) button.dataset.obstacle = "ice";
   if (piece.ice) button.dataset.ice = "true";
   if (piece.burning) button.dataset.burning = "true";
 
   const visual = tileVisual(piece);
-  const label = piece.stone ? visual.name : piece.special ? `${visual.name} 奖励方块` : visual.name;
-  button.setAttribute("aria-label", piece.ice ? `${label}，冰块覆盖` : label);
+  const label = piece.stone || piece.ice ? visual.name : piece.special ? `${visual.name} 奖励方块` : visual.name;
+  button.setAttribute("aria-label", label);
 
   if (selected && selected.row === row && selected.col === col) button.classList.add("selected");
   if (activeTool) button.classList.add("tool-target");
@@ -1000,7 +1034,6 @@ function applyTileState(button, row, col, options = {}) {
   if (image.getAttribute("src") !== visual.src) image.src = visual.src;
 
   button.querySelectorAll(".obstacle-overlay").forEach((item) => item.remove());
-  if (piece.ice) button.append(makeOverlay("ice-overlay", OBSTACLE_TYPES.ice.src));
   if (piece.burning) button.append(makeOverlay("fire-overlay", OBSTACLE_TYPES.fire.src));
 }
 
@@ -1057,8 +1090,12 @@ function renderPetHud() {
   const basket = player.basket;
   activePetImgEl.src = pet.idle;
   activePetNameEl.textContent = pet.name;
+  const xpNeeded = petXpNeeded(state.level);
+  petLevelTextEl.textContent = `Lv.${state.level}`;
   petSatietyTextEl.textContent = `${Math.floor(state.satiety)}/${pet.maxSatiety}`;
   petSatietyFillEl.style.width = `${Math.min(100, Math.round((state.satiety / pet.maxSatiety) * 100))}%`;
+  petXpTextEl.textContent = `${Math.floor(state.xp)}/${xpNeeded}`;
+  petXpFillEl.style.width = `${Math.min(100, Math.round((state.xp / xpNeeded) * 100))}%`;
   basket.capacity = basketCapacity();
   basketTextEl.textContent = `${Math.floor(basket.amount || 0)}/${basket.capacity}`;
   const basketSrc = basketAsset();
@@ -1077,7 +1114,7 @@ function renderShop() {
     const pet = PETS[id];
     const owned = player.unlockedPets.includes(id);
     const expanded = expandedPetId === id;
-    const state = player.pets[id] || { level: 1, satiety: 0 };
+    const state = player.pets[id] || { level: 1, satiety: 0, xp: 0 };
     const skillCost = Math.max(72, pet.skillCost - (state.level - 1) * 4);
     const card = document.createElement("article");
     card.className = `pet-card${owned ? " owned" : ""}${expanded ? " expanded" : ""}`;
@@ -1101,6 +1138,7 @@ function renderShop() {
           <span><small>每小时食量</small><strong>${pet.appetite}</strong></span>
           <span><small>饱食上限</small><strong>${pet.maxSatiety}</strong></span>
           <span><small>当前等级</small><strong>Lv.${state.level}</strong></span>
+          <span><small>升级经验</small><strong>${Math.floor(state.xp)}/${petXpNeeded(state.level)}</strong></span>
         </div>
         ${shopNotice?.id === id ? `<div class="shop-notice ${shopNotice.kind}">${shopNotice.text}</div>` : ""}
         <button class="pet-buy-btn" type="button" ${owned && player.activePet === id ? "disabled" : ""}>
@@ -1388,7 +1426,7 @@ function areAdjacent(a, b) {
 
 function canMoveCell(cell) {
   const piece = board[cell.row]?.[cell.col];
-  return !!piece && !piece.stone;
+  return !!piece && !piece.stone && !piece.ice;
 }
 
 function swap(a, b) {
@@ -1508,9 +1546,12 @@ function collectFoodFromMatches(matches) {
     const tileEl = tileElement({ row, col });
     animateFoodToPet(tileEl, piece);
     applyFoodToPet(FOOD_SATIETY);
+    const order = orders.find((item) => item.type === piece.type);
+    if (order) order.got += 1;
     collected += 1;
   }
   if (collected > 0) {
+    gainPetExperience(collected);
     const img = activePetImgEl;
     img.src = activePet().eat;
     img.classList.remove("eating");
@@ -1561,14 +1602,6 @@ function burst(tileEl) {
   }
 }
 
-function collectOrders(clearedPieces) {
-  for (const piece of clearedPieces) {
-    if (piece.stone) continue;
-    const order = orders.find((item) => item.type === piece.type);
-    if (order) order.got += 1;
-  }
-}
-
 function collectObstacle(name, amount = 1) {
   const order = orders.find((item) => item.obstacle === name);
   if (order) order.got += amount;
@@ -1587,7 +1620,6 @@ function neighborCells(cell) {
 
 function crackIceNear(matches) {
   let cracked = 0;
-  const protectedCells = new Set();
   const candidates = new Set();
 
   for (const id of matches) {
@@ -1599,13 +1631,11 @@ function crackIceNear(matches) {
     const cell = parseKey(id);
     const piece = board[cell.row]?.[cell.col];
     if (!piece?.ice) continue;
-    piece.ice = false;
+    board[cell.row][cell.col] = null;
     cracked += 1;
-    protectedCells.add(id);
     burst(tileElement(cell));
   }
 
-  for (const id of protectedCells) matches.delete(id);
   if (cracked > 0) {
     collectObstacle("ice", cracked);
     playSound("special");
@@ -1617,12 +1647,10 @@ function crackIceNear(matches) {
 }
 
 function collapse(matches, specials) {
-  const clearedPieces = [];
   const dropMap = new Map();
   for (const id of matches) {
     const { row, col } = parseKey(id);
     if (board[row][col]?.stone) collectObstacle("stone", 1);
-    else if (board[row][col]) clearedPieces.push(board[row][col]);
     board[row][col] = null;
   }
 
@@ -1631,8 +1659,6 @@ function collapse(matches, specials) {
     const { row, col } = parseKey(id);
     board[row][col] = piece;
   }
-
-  collectOrders(clearedPieces);
 
   for (let col = 0; col < SIZE; col += 1) {
     const kept = [];
@@ -1949,7 +1975,7 @@ function useHammer(cell) {
 
 function useSpark(cell) {
   const piece = board[cell.row]?.[cell.col];
-  if (!piece || piece.stone) return;
+  if (!piece || piece.stone || piece.ice || piece.type === null) return;
   if (!spendPetSatiety("spark")) return;
   activeTool = null;
   clearCells(typeCells(piece.type), "星爆清屏！");
