@@ -385,21 +385,6 @@ button:active {
   animation: mascotPop 760ms ease both;
 }
 
-.mascot-bubble {
-  max-width: 180px;
-  margin-bottom: -6px;
-  padding: 7px 10px;
-  border: 2px solid rgba(255, 255, 255, 0.95);
-  border-radius: 14px;
-  color: var(--ink);
-  font-size: 0.78rem;
-  font-weight: 900;
-  line-height: 1.25;
-  text-align: center;
-  background: rgba(255, 248, 253, 0.92);
-  box-shadow: 0 8px 18px rgba(143, 72, 110, 0.16);
-}
-
 .board {
   --cell: min(calc((100vw - 286px) / 8), calc((100vh - 176px) / 8), 70px);
   display: grid;
@@ -446,9 +431,11 @@ button:active {
 }
 
 .tile img {
+  display: block;
   width: 124%;
   height: 124%;
   object-fit: contain;
+  object-position: 50% 50%;
   filter: drop-shadow(0 5px 5px rgba(86, 53, 71, 0.16));
   pointer-events: none;
   user-select: none;
@@ -1271,12 +1258,6 @@ body.landscape-locked .version-badge {
     width: clamp(66px, 22vw, 94px);
   }
 
-  .mascot-bubble {
-    max-width: 130px;
-    padding: 5px 7px;
-    font-size: 0.66rem;
-  }
-
   .tile {
     border-radius: 10px;
   }
@@ -1980,12 +1961,6 @@ body.landscape-locked .version-badge {
     width: clamp(54px, 17vw, 76px);
   }
 
-  .mascot-bubble {
-    max-width: 104px;
-    padding: 4px 6px;
-    font-size: 0.58rem;
-  }
-
   .side-panel {
     gap: 4px;
     padding: 5px;
@@ -2205,12 +2180,6 @@ body.landscape-locked .version-badge {
 
   body.squeezed-height .mascot {
     width: clamp(48px, 15vw, 68px);
-  }
-
-  body.squeezed-height .mascot-bubble {
-    max-width: 98px;
-    padding: 3px 5px;
-    font-size: 0.54rem;
   }
 
   body.squeezed-height .side-panel {
@@ -2461,7 +2430,7 @@ body.landscape-locked .version-badge {
   background: linear-gradient(90deg, #59d6b2, #79bfff);
 }
 
-/* v0.14: generated transparent celebration art replaces text-only combo banners. */
+/* Generated transparent celebration art replaces text-only combo banners. */
 .celebration-popup {
   --celebration-duration: 1150ms;
   position: fixed;
