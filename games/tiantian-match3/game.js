@@ -1,5 +1,5 @@
 const SIZE = 8;
-const GAME_VERSION = "v0.12.0";
+const GAME_VERSION = "v0.12.1";
 const MAX_LEVELS = 500;
 const LEVEL_WAVE = [0.92, 0.98, 1.04, 1.08, 1, 0.95, 1.02, 1.06, 0.97, 1.1];
 const TYPES = [
@@ -176,7 +176,7 @@ const REQUIRED_IMAGE_ASSETS = [
     ...OBSTACLE_ASSETS,
     ...BASKET_ASSETS,
     ...Object.values(MASCOT_ASSETS),
-    ...PET_ORDER.flatMap((id) => [PETS[id].idle, PETS[id].eat, PETS[id].ready]),
+    ...PET_ORDER.flatMap((id) => [PETS[id].idle, PETS[id].eat]),
   ]),
 ];
 const REQUIRED_AUDIO_ASSETS = Object.values(MASCOT_VOICES);
@@ -426,7 +426,9 @@ async function finishLoadingScreen() {
 
 async function preloadRequiredImages() {
   updateLoadingProgress(0.04, "卡皮巴拉正在检查糖果");
-  const firstPass = await preloadWithProgress(REQUIRED_IMAGE_ASSETS, preloadImage, 0.08, 0.82, "正在装盘糖果素材");
+  const currentReadyAsset = activePet().ready;
+  const requiredImages = [...new Set([...REQUIRED_IMAGE_ASSETS, currentReadyAsset])];
+  const firstPass = await preloadWithProgress(requiredImages, preloadImage, 0.08, 0.82, "正在装盘糖果素材");
   const missing = firstPass.filter((item) => !item.ok).map((item) => item.src);
   if (missing.length > 0) {
     const secondPass = await preloadWithProgress(
@@ -453,6 +455,8 @@ async function bootGame() {
   busy = false;
   renderHomeHub();
   await finishLoadingScreen();
+  const remainingReadyAssets = PET_ORDER.map((id) => PETS[id].ready).filter((src) => src !== activePet().ready);
+  preloadWithoutProgress(remainingReadyAssets, preloadImage).catch(() => {});
 }
 
 function getSoundPreference() {
