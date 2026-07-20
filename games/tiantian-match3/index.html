@@ -14,7 +14,7 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="apple-touch-icon" href="assets/app-icons/icon-180.png" />
     <link rel="icon" sizes="192x192" href="assets/app-icons/icon-192.png" />
-    <link rel="stylesheet" href="styles.css?v=0.15.0" />
+    <link rel="stylesheet" href="styles.css?v=0.16.0" />
   </head>
   <body>
     <div id="loadingScreen" class="loading-screen" role="status" aria-live="polite">
@@ -30,7 +30,7 @@
           <div id="loaderFill" class="loader-fill"></div>
           <span id="loaderPercent" class="loader-percent">0%</span>
         </div>
-        <span id="loaderVersion" class="loader-version">v0.15.0</span>
+        <span id="loaderVersion" class="loader-version">v0.16.0</span>
       </div>
     </div>
     <main class="game-shell" aria-label="甜甜三消游戏">
@@ -54,7 +54,10 @@
               <small id="readyLevelText">准备挑战第 1 关</small>
             </div>
             <div class="ready-stage">
-              <img id="readyPetImg" src="assets/pets/capybara-ready-hd.png" alt="准备出战的宠物" />
+              <picture>
+                <source id="readyPetSource" type="image/webp" srcset="assets/pets/capybara-ready-hd.webp" />
+                <img id="readyPetImg" src="assets/pets/capybara-ready-hd.png" alt="准备出战的宠物" decoding="async" />
+              </picture>
               <div class="home-basket-wrap">
                 <img id="homeBasketImg" class="home-basket" src="assets/baskets/basket-0.png" alt="食物篮子" />
                 <small id="homeFreshnessText">保鲜 70 分钟</small>
@@ -105,7 +108,7 @@
         <section class="game-companion" aria-label="宠物状态">
           <div id="petHud" class="pet-hud">
             <div id="mascot" class="pet-stage" aria-live="polite">
-              <img id="activePetImg" src="assets/pets/capybara-idle.png" alt="当前宠物" />
+              <img id="activePetImg" src="assets/pets/capybara-idle.png" alt="当前宠物" loading="lazy" decoding="async" />
               <div class="pet-meter">
                 <span><b id="activePetName">卡皮巴拉</b><em id="petLevelText">Lv.1</em></span>
                 <strong id="petSatietyText">0/120</strong>
@@ -115,7 +118,7 @@
               </div>
             </div>
             <div class="basket-mini">
-              <img id="basketImg" src="assets/baskets/basket-0.png" alt="食物篮子" />
+              <img id="basketImg" src="assets/baskets/basket-0.png" alt="食物篮子" loading="lazy" decoding="async" />
               <div>
                 <span>食物篮</span>
                 <strong id="basketText" hidden>0/63</strong>
@@ -124,32 +127,32 @@
             </div>
             <div class="boosters pet-boosters" aria-label="宠物技能">
               <button id="hammerBtn" class="booster" type="button">
-                <img src="assets/boosters/hammer.png" alt="" />
+                <img src="assets/boosters/hammer.png" alt="" loading="lazy" decoding="async" />
                 <span>卡皮糖锤</span>
                 <strong id="hammerCount">2</strong>
               </button>
               <button id="sparkBtn" class="booster" type="button">
-                <img src="assets/boosters/spark.png" alt="" />
+                <img src="assets/boosters/spark.png" alt="" loading="lazy" decoding="async" />
                 <span>鹦鹉星爆</span>
                 <strong id="sparkCount">1</strong>
               </button>
               <button id="rowBlastBtn" class="booster" type="button">
-                <img src="assets/boosters/row-blast.png" alt="" />
+                <img src="assets/boosters/row-blast.png" alt="" loading="lazy" decoding="async" />
                 <span>小猪横扫</span>
                 <strong id="rowBlastCount">1</strong>
               </button>
               <button id="colBlastBtn" class="booster" type="button">
-                <img src="assets/boosters/col-blast.png" alt="" />
+                <img src="assets/boosters/col-blast.png" alt="" loading="lazy" decoding="async" />
                 <span>奶牛竖扫</span>
                 <strong id="colBlastCount">1</strong>
               </button>
               <button id="crossBlastBtn" class="booster" type="button">
-                <img src="assets/boosters/cross-blast.png" alt="" />
+                <img src="assets/boosters/cross-blast.png" alt="" loading="lazy" decoding="async" />
                 <span>奶狗十字</span>
                 <strong id="crossBlastCount">1</strong>
               </button>
               <button id="addMovesBtn" class="booster" type="button">
-                <img src="assets/boosters/add-moves.png" alt="" />
+                <img src="assets/boosters/add-moves.png" alt="" loading="lazy" decoding="async" />
                 <span>加餐步数</span>
                 <strong id="addMovesCount">1</strong>
               </button>
@@ -185,7 +188,7 @@
           </aside>
         </section>
         <div id="celebrationPopup" class="celebration-popup" hidden aria-live="polite">
-          <img id="celebrationImage" src="assets/celebrations/four_v2.png" alt="四连消" />
+          <img id="celebrationImage" alt="" decoding="async" />
         </div>
       </section>
       <div id="modal" class="modal" hidden>
@@ -203,8 +206,8 @@
         <span>旋转手机后继续甜甜三消</span>
       </div>
     </div>
-    <div id="versionBadge" class="version-badge">v0.15.0</div>
+    <div id="versionBadge" class="version-badge">v0.16.0</div>
 
-    <script src="game.js?v=0.15.0"></script>
+    <script src="game.js?v=0.16.0"></script>
   </body>
 </html>
