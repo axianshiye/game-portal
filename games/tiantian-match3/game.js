@@ -1,7 +1,19 @@
 const SIZE = 8;
-const GAME_VERSION = "v0.15.0";
+const GAME_VERSION = "v0.16.0";
 const MAX_LEVELS = 500;
 const LEVEL_WAVE = [0.92, 0.98, 1.04, 1.08, 1, 0.95, 1.02, 1.06, 0.97, 1.1];
+const SUPPORTS_WEBP = (() => {
+  try {
+    return document.createElement("canvas").toDataURL("image/webp").startsWith("data:image/webp");
+  } catch {
+    return false;
+  }
+})();
+
+function preferredImage(pngPath) {
+  return SUPPORTS_WEBP ? pngPath.replace(/\.png$/, ".webp") : pngPath;
+}
+
 const TYPES = [
   { name: "奶油马卡龙", src: "assets/foods/cream_macaron.png" },
   { name: "布丁杯", src: "assets/foods/pudding_cup_v2.png" },
@@ -48,7 +60,9 @@ const PETS = {
     skillCost: 96,
     idle: "assets/pets/capybara-idle.png",
     eat: "assets/pets/capybara-eat.png",
-    ready: "assets/pets/capybara-ready-hd.png",
+    ready: preferredImage("assets/pets/capybara-ready-hd.png"),
+    readyPng: "assets/pets/capybara-ready-hd.png",
+    readyWebp: "assets/pets/capybara-ready-hd.webp",
     description: "温柔可靠的厨房队长，糖锤能敲掉目标和上下左右四格。",
   },
   puppy: {
@@ -61,7 +75,9 @@ const PETS = {
     skillCost: 102,
     idle: "assets/pets/puppy-idle.png",
     eat: "assets/pets/puppy-eat.png",
-    ready: "assets/pets/puppy-ready-hd.png",
+    ready: preferredImage("assets/pets/puppy-ready-hd.png"),
+    readyPng: "assets/pets/puppy-ready-hd.png",
+    readyWebp: "assets/pets/puppy-ready-hd.webp",
     description: "嗅觉灵敏的小帮手，寻宝十字能同时清理整行和整列。",
   },
   calf: {
@@ -74,7 +90,9 @@ const PETS = {
     skillCost: 108,
     idle: "assets/pets/calf-idle.png",
     eat: "assets/pets/calf-eat.png",
-    ready: "assets/pets/calf-ready-hd.png",
+    ready: preferredImage("assets/pets/calf-ready-hd.png"),
+    readyPng: "assets/pets/calf-ready-hd.png",
+    readyWebp: "assets/pets/calf-ready-hd.webp",
     description: "奶香十足的稳重伙伴，技能可以清空选中的一整列。",
   },
   piglet: {
@@ -87,7 +105,9 @@ const PETS = {
     skillCost: 104,
     idle: "assets/pets/piglet-idle.png",
     eat: "assets/pets/piglet-eat.png",
-    ready: "assets/pets/piglet-ready-hd.png",
+    ready: preferredImage("assets/pets/piglet-ready-hd.png"),
+    readyPng: "assets/pets/piglet-ready-hd.png",
+    readyWebp: "assets/pets/piglet-ready-hd.webp",
     description: "热爱烘焙的大胃王，技能可以横扫选中的一整行。",
   },
   parrot: {
@@ -100,7 +120,9 @@ const PETS = {
     skillCost: 92,
     idle: "assets/pets/parrot-idle.png",
     eat: "assets/pets/parrot-eat.png",
-    ready: "assets/pets/parrot-ready-hd.png",
+    ready: preferredImage("assets/pets/parrot-ready-hd.png"),
+    readyPng: "assets/pets/parrot-ready-hd.png",
+    readyWebp: "assets/pets/parrot-ready-hd.webp",
     description: "活泼机灵的甜点侦察员，星爆能清除一种相同食物。",
   },
 };
@@ -127,31 +149,13 @@ const OBSTACLE_TYPES = {
   fire: { name: "火焰", src: "assets/obstacles/fire.png" },
   stone: { name: "石头", src: "assets/obstacles/stone.png" },
 };
-const OBSTACLE_ASSETS = Object.values(OBSTACLE_TYPES).map((item) => item.src);
 const BASKET_ASSETS = Array.from({ length: 6 }, (_, index) => `assets/baskets/basket-${index}.png`);
-const MASCOT_ASSETS = {
-  idle: "assets/mascot/idle.png",
-  cheer: "assets/mascot/cheer.png",
-  wow: "assets/mascot/wow.png",
-  legend: "assets/mascot/legend.png",
-};
 const CELEBRATION_ASSETS = {
-  four: { src: "assets/celebrations/four_v2.png", label: "四连消", duration: 1150 },
-  five: { src: "assets/celebrations/five_v2.png", label: "闪耀五连消", duration: 1300 },
-  six: { src: "assets/celebrations/six_v2.png", label: "超棒六连消", duration: 1450 },
-  grand: { src: "assets/celebrations/grand_v2.png", label: "大满贯", duration: 1750 },
+  four: { src: preferredImage("assets/celebrations/four_v2.png"), label: "四连消", duration: 1150 },
+  five: { src: preferredImage("assets/celebrations/five_v2.png"), label: "闪耀五连消", duration: 1300 },
+  six: { src: preferredImage("assets/celebrations/six_v2.png"), label: "超棒六连消", duration: 1450 },
+  grand: { src: preferredImage("assets/celebrations/grand_v2.png"), label: "大满贯", duration: 1750 },
 };
-const REQUIRED_IMAGE_ASSETS = [
-  ...new Set([
-    ...TYPES.map((item) => item.src),
-    ...BOOSTER_ASSETS,
-    ...OBSTACLE_ASSETS,
-    ...BASKET_ASSETS,
-    ...Object.values(MASCOT_ASSETS),
-    ...Object.values(CELEBRATION_ASSETS).map((item) => item.src),
-    ...PET_ORDER.flatMap((id) => [PETS[id].idle, PETS[id].eat]),
-  ]),
-];
 const PROGRESS_KEY = "sweet-match-current-level";
 
 const boardEl = document.querySelector("#board");
@@ -200,6 +204,7 @@ const exitGameBtn = document.querySelector("#exitGameBtn");
 const homeLevelEl = document.querySelector("#homeLevel");
 const homeCoinsEl = document.querySelector("#homeCoins");
 const readyPetImgEl = document.querySelector("#readyPetImg");
+const readyPetSourceEl = document.querySelector("#readyPetSource");
 const readyPetNameEl = document.querySelector("#readyPetName");
 const readyLevelTextEl = document.querySelector("#readyLevelText");
 const homeBasketImgEl = document.querySelector("#homeBasketImg");
@@ -380,6 +385,30 @@ async function preloadWithoutProgress(items, loader) {
   );
 }
 
+function criticalImageAssets(levelIndex) {
+  const pet = activePet();
+  const config = buildLevelConfig(levelIndex);
+  const assets = [
+    pet.ready,
+    pet.idle,
+    pet.eat,
+    basketAsset(),
+    ...config.typeIndexes.map((typeIndex) => TYPES[typeIndex].src),
+  ];
+  if (config.iceCount > 0) assets.push(OBSTACLE_TYPES.ice.src);
+  if (config.initialStones > 0) assets.push(OBSTACLE_TYPES.stone.src);
+  if (config.fireEvery > 0) assets.push(OBSTACLE_TYPES.fire.src);
+  return [...new Set(assets)];
+}
+
+function warmGameAssets() {
+  const assets = [
+    ...BOOSTER_ASSETS,
+    ...Object.values(CELEBRATION_ASSETS).map((item) => item.src),
+  ];
+  preloadWithoutProgress([...new Set(assets)], preloadImage).catch(() => {});
+}
+
 async function finishLoadingScreen() {
   updateLoadingProgress(1, "出发，开始甜甜三消！");
   await sleep(420);
@@ -388,8 +417,7 @@ async function finishLoadingScreen() {
 
 async function preloadRequiredImages() {
   updateLoadingProgress(0.04, "卡皮巴拉正在检查糖果");
-  const currentReadyAsset = activePet().ready;
-  const requiredImages = [...new Set([...REQUIRED_IMAGE_ASSETS, currentReadyAsset])];
+  const requiredImages = criticalImageAssets(getSavedLevel());
   const firstPass = await preloadWithProgress(requiredImages, preloadImage, 0.08, 0.82, "正在装盘糖果素材");
   const missing = firstPass.filter((item) => !item.ok).map((item) => item.src);
   if (missing.length > 0) {
@@ -416,8 +444,6 @@ async function bootGame() {
   busy = false;
   renderHomeHub();
   await finishLoadingScreen();
-  const remainingReadyAssets = PET_ORDER.map((id) => PETS[id].ready).filter((src) => src !== activePet().ready);
-  preloadWithoutProgress(remainingReadyAssets, preloadImage).catch(() => {});
 }
 
 function getSoundPreference() {
@@ -697,7 +723,8 @@ function renderHomeHub() {
   const basketSrc = basketAsset();
   homeLevelEl.textContent = `${getSavedLevel() + 1}`;
   homeCoinsEl.textContent = `${player.coins}`;
-  readyPetImgEl.src = pet.ready || pet.idle;
+  if (readyPetSourceEl) readyPetSourceEl.srcset = pet.readyWebp;
+  readyPetImgEl.src = pet.readyPng || pet.idle;
   readyPetNameEl.textContent = pet.name;
   readyLevelTextEl.textContent = gameStarted ? `继续挑战第 ${level + 1} 关` : `准备挑战第 ${getSavedLevel() + 1} 关`;
   startGameBtn.textContent = gameStarted ? "继续游戏" : "开始游戏";
@@ -713,6 +740,7 @@ async function enterGame() {
   if (isLandscapeLocked) return;
   homeViewEl.hidden = true;
   gameViewEl.hidden = false;
+  warmGameAssets();
   playSound("button");
   if (!gameStarted) {
     gameStarted = true;
@@ -1120,7 +1148,7 @@ function renderShop() {
     card.dataset.pet = id;
     card.innerHTML = `
       <button class="pet-card-summary" type="button" aria-expanded="${expanded}">
-        <img src="${pet.idle}" alt="" />
+        <img src="${pet.idle}" alt="" loading="lazy" decoding="async" />
         <span>
           <strong>${pet.name}</strong>
           <span>${pet.skillName} · ${pet.appetite}/小时</span>
